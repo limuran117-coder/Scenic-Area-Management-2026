@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "updated": "2026-04-15T16:20:25.734938",
+  "preferences": {
+    "feishu_cards": true,
+    "detailed_reports": true,
+    "proactive_alerts": true,
+    "evening_reports": true,
+    "browser_automation": true
+  },
+  "behavior_patterns": {},
+  "communication_style": {
+    "prefers_cards": true,
+    "likes_details": true,
+    "quick_decisions": true,
+    "emoji_usage": "moderate",
+    "response_style": "action_oriented"
+  },
+  "active_hours": [
+    15,
+    10,
+    16
+  ],
+  "feedback_tendencies": {
+    "corrects_mistakes": true,
+    "confirms_good_work": true,
+    "gives_suggestions": true,
+    "prefers_direct": true
+  },
+  "learning_style": {
+    "explores_new_tools": true,
+    "shares_insights": true,
+    "collaborative": true,
+    "patient_with_experiments": true
+  }
+}

@@ -18,9 +18,13 @@
 - 天气日报（7:00）
 
 **核心文件：**
-- 抖音指数脚本：`~/openclaw/workspace/scripts/douyin_index_v9.py`
+- 抖音指数脚本：`~/.openclaw/workspace/scripts/douyin_index_v9.py`
+- 抖音Cookie：`/tmp/juLiang_cookies.json`（代理127.0.0.1:7897）
+- 抖音数据订阅页：https://creator.douyin.com/creator-micro/creator-count/my-subscript?source=creator
+- 小红书采集脚本：`~/.openclaw/workspace/scripts/xiaohongshu_crawl.py`
+- 小红书Cookie：`/tmp/xiaohongshu_cookies.json`（代理127.0.0.1:7897）
 - 客流Excel：`~/Desktop/2026年电影小镇实际客流.xlsx`
-- 飞书群：oc_f109bcfd1bc7e166fd0ae077f70247cf
+- 飞书群：oc_2581c03b79e4893cc3616b253d60f34e（电影小镇群）
 
 ---
 

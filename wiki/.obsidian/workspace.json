@@ -1,0 +1,268 @@
+{
+  "main": {
+    "id": "01a6e14c107691b5",
+    "type": "split",
+    "children": [
+      {
+        "id": "7b758a193f97ed54",
+        "type": "tabs",
+        "dimension": 66.52926628194558,
+        "children": [
+          {
+            "id": "e72f00d3aecb37bd",
+            "type": "leaf",
+            "pinned": true,
+            "state": {
+              "type": "graph",
+              "state": {},
+              "pinned": true,
+              "icon": "lucide-git-fork",
+              "title": "关系图谱"
+            }
+          }
+        ]
+      },
+      {
+        "id": "fcfcfcc440584a1f",
+        "type": "tabs",
+        "dimension": 33.47073371805441,
+        "children": [
+          {
+            "id": "2d8e9dc7b3e2ea21",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "竞品分析/清明上河园深度分析.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "清明上河园深度分析"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "1c3bed9981c9759c",
+    "type": "split",
+    "children": [
+      {
+        "id": "1c5c64f7873372ce",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "170f2840afe9af74",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "147c2ef73a73604e",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "b824434d563b710e",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 274.5
+  },
+  "right": {
+    "id": "94261d0a92be1a07",
+    "type": "split",
+    "children": [
+      {
+        "id": "7878635009b351ad",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8f24786fa0edf569",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "反向链接"
+            }
+          },
+          {
+            "id": "3868522ce87b868f",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "出链"
+            }
+          },
+          {
+            "id": "d69a9dc605d358fb",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "eb300f5bb2f0a9ec",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "f39004c15cf0056a",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "大纲"
+            }
+          },
+          {
+            "id": "6110be7b56763aa2",
+            "type": "leaf",
+            "state": {
+              "type": "calendar",
+              "state": {},
+              "icon": "calendar-with-checkmark",
+              "title": "Calendar"
+            }
+          },
+          {
+            "id": "488b22b55e21fb06",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
+          }
+        ],
+        "currentTab": 6
+      }
+    ],
+    "direction": "horizontal",
+    "width": 302.5,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "obsidian-excalidraw-plugin:New drawing": false,
+      "omnisearch:Omnisearch": false,
+      "obsidian-git:Open Git source control": false,
+      "bases:新建数据库": false
+    }
+  },
+  "active": "e72f00d3aecb37bd",
+  "lastOpenFiles": [
+    "竞品分析/清明上河园深度分析.md",
+    "案例库/只有河南排队区情景剧-2026W16.md",
+    "Excalidraw/Drawing 2026-04-17 11.28.08.excalidraw.md",
+    "未命名 2.base",
+    "Excalidraw",
+    "未命名.base",
+    "未命名 1.base",
+    "案例库/方特POV跳楼机-2026W16.md",
+    "电影小镇/历史数据/客流与营收分析.md",
+    "竞品分析/竞品基础档案.md",
+    "竞品分析/抖音指数追踪.md",
+    "竞品分析/抖音指数每日追踪.md",
+    "技术配置/图片识别配置.md",
+    "技术配置/搜索关键词规范.md",
+    "技术配置/浏览器操作规范.md",
+    "电影小镇/人群画像.md",
+    "电影小镇/基础档案.md",
+    "电影小镇/运营方法/小红书运营方法.md",
+    "电影小镇/运营方法/小红书灵犀后台运营方法.md",
+    "电影小镇/运营方法/抖音运营方法.md",
+    "案例库/index.md",
+    "案例库/银基Live图-2026W16.md",
+    "案例库/万岁山i人挑战-2026W16.md",
+    "案例库/电影小镇动作表演-2026W16.md",
+    "SOP/日报模板.md",
+    "SOP/反馈纠错.md",
+    "竞品分析/小红书爆款追踪.md",
+    "竞品分析/竞品深度档案.md",
+    "日报/客流",
+    "日报/小红书",
+    "日报/抖音指数",
+    "电影小镇/战略框架.md",
+    "日报",
+    "SOP",
+    "电影小镇/运营方法",
+    "未命名 2.canvas",
+    "未命名 1.canvas",
+    "未命名.canvas"
+  ]
+}

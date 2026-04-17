@@ -16,6 +16,11 @@
 - 客流数据记录与分析
 - 营销策略建议
 
+### 专属浏览器标签页（CDP端口9222）
+- Tab0：小红书 https://www.xiaohongshu.com/explore
+- Tab1：抖音订阅页 https://creator.douyin.com/creator-micro/creator-count/my-subscript?source=creator
+- Tab3：抖音关键词页 https://creator.douyin.com/creator-micro/creator-count/arithmetic-index
+
 ## 关键文件位置
 - 抖音指数脚本：`~/openclaw/workspace/scripts/douyin_index_v9.py`
 - 客流Excel：`~/Desktop/2026年电影小镇实际客流.xlsx`

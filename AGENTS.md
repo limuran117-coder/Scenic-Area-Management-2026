@@ -36,6 +36,34 @@ Capture what matters. Decisions, context, things to remember. Skip the secrets u
 - This is your curated memory — the distilled essence, not raw logs
 - Over time, review your daily files and update MEMORY.md with what's worth keeping
 
+### 📐 Memory 管理规则（Claude Code 规范，2026-04-10）
+
+**限制：**
+- MEMORY.md 最大 **100 行、25KB**，超出自动告警并截断
+- 单个 entry 最多 **50 字符摘要**，详细内容移至独立 topic 文件
+
+**Entry 格式（三种都要会写）：**
+```markdown
+**规则：** [简要规则描述]
+**Why:** [原因 — 为什么这条规则存在]
+**How to apply:** [何时何地应用这条规则]
+```
+
+**四类记忆分类（必须正确标记）：**
+| 类型 | 用途 | 示例 |
+|------|------|------|
+| `[user]` | 用户角色/偏好/目标 | user: 站长偏好详细数据报告 |
+| `[feedback]` | 工作指导（纠错+确认） | feedback: 达人必须绑定转化链路 |
+| `[project]` | 项目内工作/事件/目标 | project: 当前在优化多Agent系统 |
+| `[reference]` | 外部系统指针 | reference: 飞书群 oc_xxx |
+
+**写入时机：**
+- `feedback` 纠错：用户说"不要"/"不对"/"停止"时
+- `feedback` 确认：用户说"对"/"很好"/"就这样"时（确认成功也要记！）
+- `user`：学到用户新偏好/角色/目标时
+- `project`：学到项目新进展/目标/变化时
+- `reference`：学到外部系统资源时
+
 ### 📝 Write It Down - No "Mental Notes"!
 
 - **Memory is limited** — if you want to remember something, WRITE IT TO A FILE
@@ -206,6 +234,14 @@ Periodically (every few days), use a heartbeat to:
 Think of it like a human reviewing their journal and updating their mental model. Daily files are raw notes; MEMORY.md is curated wisdom.
 
 The goal: Be helpful without being annoying. Check in a few times a day, do useful background work, but respect quiet time.
+
+### 🔍 每周系统检查（Every Sunday）
+
+每周检查并优化：
+1. **本地系统架构** - Skill是否需要重新分配？
+2. **记忆系统** - MEMORY.md是否臃肿？topics/是否需要整理？
+3. **定时任务** - cron是否正常执行？
+4. **整体效率** - 有没有更优的工作方式？
 
 ## Make It Yours
 
