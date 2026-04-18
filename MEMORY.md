@@ -111,8 +111,9 @@ core_mission: 景区客流与营收增长，数据驱动的全域营销操盘
 
 ## [reference] 灵犀后台（2026-04-16新增）
 **规则：** 小红书灵犀后台可查：人群资产/搜索量/笔记数据/趋势榜单
+**URL：** https://idea.xiaohongshu.com/idea/welcome/index（账号：建业电影小镇官方ID:530883）
 **Why：** 爬虫被封后替代方案
-**How to apply:** 账号建业电影小镇官方（ID:530883），16:30任务后探索
+**How to apply:** 页面受阻时刷新+等待5秒
 
 ## [project] 抖音指数采集 SOP（2026-04-16 完整验证）
 
