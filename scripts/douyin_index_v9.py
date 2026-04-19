@@ -95,7 +95,6 @@ async def login_and_get_cookies():
         browser = await p.chromium.launch_persistent_context(
             user_data_dir=PROFILE_DIR,
             headless=False,
-            port=DEBUG_PORT,
             args=[
                 '--no-first-run',
                 '--no-default-browser-check'
@@ -265,18 +264,25 @@ async def crawl_with_cookies():
             browser = await p.chromium.connect_over_cdp("http://127.0.0.1:9222")
             print("[CDP] 连接成功！复用已有 Chrome 窗口")
         except Exception as e:
-            print(f"[CDP] 连接失败（将启动临时Chrome）: {e}")
+            print(f"[CDP] 连接失败: {e}")
             browser = None
         
-        # 策略2：无CDP连接则启动临时Chrome（使用 launch_persistent_context）
+        # 策略2：尝试连接 OpenClaw 浏览器（port 18800）
+        if not browser:
+            try:
+                print("[CDP] 尝试连接 OpenClaw Chrome: http://127.0.0.1:18800")
+                browser = await p.chromium.connect_over_cdp("http://127.0.0.1:18800")
+                print("[CDP] OpenClaw Chrome 连接成功！")
+            except Exception as e2:
+                print(f"[CDP] OpenClaw Chrome 连接失败: {e2}")
+        
+        # 策略3：无CDP连接则启动临时Chrome（使用 launch_persistent_context）
         if not browser:
             os.makedirs(PROFILE_DIR, exist_ok=True)
             print(f"[Chrome] 启动临时 Chrome（Profile: {PROFILE_DIR}）")
-            # 新版Playwright：user_data_dir 通过 launch_persistent_context 参数传入
             browser = await p.chromium.launch_persistent_context(
                 user_data_dir=PROFILE_DIR,
                 headless=False,
-                port=DEBUG_PORT,
                 args=[
                     '--no-first-run',
                     '--no-default-browser-check'
@@ -285,17 +291,30 @@ async def crawl_with_cookies():
             # 等待Chrome完全启动，获取CDP endpoint并保存
             await asyncio.sleep(2)
             try:
-                ws_endpoint = browser.ws_endpoint
-                if ws_endpoint:
-                    os.makedirs(os.path.dirname(CDP_ENDPOINT_FILE), exist_ok=True)
-                    with open(CDP_ENDPOINT_FILE, 'w') as f:
-                        f.write(ws_endpoint)
-                    print(f"[CDP] 新Chrome CDP endpoint已保存: {ws_endpoint}")
+                # ws_endpoint 只在 Browser 对象上存在，BrowserContext 没有
+                if hasattr(browser, 'ws_endpoint'):
+                    ws_endpoint = browser.ws_endpoint
+                    if ws_endpoint:
+                        os.makedirs(os.path.dirname(CDP_ENDPOINT_FILE), exist_ok=True)
+                        with open(CDP_ENDPOINT_FILE, 'w') as f:
+                            f.write(ws_endpoint)
+                        print(f"[CDP] 新Chrome CDP endpoint已保存: {ws_endpoint}")
+                else:
+                    print("[CDP] BrowserContext无ws_endpoint，跳过保存")
             except Exception as e:
                 print(f"[CDP] 获取endpoint失败: {e}")
         
         # 创建 Page 并访问目标页面
-        context = browser.contexts[0] if browser.contexts else await browser.new_context()
+        # connect_over_cdp 返回 Browser，launch_persistent_context 返回 BrowserContext
+        if hasattr(browser, 'contexts'):
+            context = browser.contexts[0] if browser.contexts else await browser.new_context()
+        else:
+            # launch_persistent_context 返回 BrowserContext
+            context = browser
+        
+        # 加载已有Cookie（如果存在）
+        await check_and_load_cookies(context)
+        
         page = await context.new_page()
         
         print(f"正在访问 {CRAWL_URL} ...")
@@ -303,8 +322,12 @@ async def crawl_with_cookies():
         await page.wait_for_load_state("networkidle", timeout=15000)
         await asyncio.sleep(5)  # 等待5秒确保页面完全加载
         
-        # 获取页面文本内容
-        page_text = await page.inner_text('body')
+        # 获取页面文本内容（使用JavaScript获取完整文本，inner_text可能截断）
+        try:
+            page_text = await page.evaluate("() => document.body.innerText")
+        except:
+            page_text = await page.inner_text('body')
+        print(f"[DEBUG] 页面文本长度: {len(page_text)}")
         
         print("开始解析页面数据...")
         
