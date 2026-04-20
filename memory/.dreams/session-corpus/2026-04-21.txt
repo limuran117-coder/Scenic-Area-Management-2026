@@ -1,0 +1,3 @@
+[main/sessions/3e2da701-fd81-48ed-94fa-5a6dd9c72a52.jsonl#L5] User: [cron:7e74d00a-410e-427a-b1cf-b5330ff11314 案例库更新-周246] 【案例库更新】整理本周优秀营销案例入库 ## 飞书卡片格式（必须严格遵守） - message参数：固定放「请查看卡片」 - card参数：完整JSON，schema 2.0 { "schema": "2.0", "header": {"title": {"tag": "plain_text", "content": "📋 案例库更新 YYYY-MM-DD"}, "template": "模板颜色"}, "body": {"elem
+[main/sessions/3e2da701-fd81-48ed-94fa-5a6dd9c72a52.jsonl#L28] Assistant: 本周W17（04.17-04.19）案例库已入库3个案例。今天（04.21周二）是周例行更新日，发送卡片到飞书群：
+[main/sessions/3e2da701-fd81-48ed-94fa-5a6dd9c72a52.jsonl#L53] Assistant: 案例库更新卡片已发送至电影小镇群 ✅ **发送内容摘要：** - W17周新增3个案例入库：万岁山武侠城标杆、大唐不夜城夜游标杆、老君山短视频爆款 - 本周洞察：三个案例均体现「低门槛参与+强社交展示性」规律，2026年景区营销已进入「游客即创作者」时代 - 案例库现有总量：8个案例（第17周+3，第16周+5）
