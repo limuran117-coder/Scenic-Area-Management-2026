@@ -111,71 +111,81 @@ def collect_keyword_deep(keyword=DEFAULT_KEYWORD):
         "crowd_profile": {},
         "error": None
     }
-    
-    try:
-        with sync_playwright() as p:
+
+    # CDP连接重试机制：最多尝试5次，每次间隔3秒
+    browser = None
+    for attempt in range(1, 6):
+        try:
+            print(f"[CDP连接尝试 {attempt}/5] {CDP_ENDPOINT}")
+            p = sync_playwright().start()
             browser = p.chromium.connect_over_cdp(CDP_ENDPOINT)
-            context = browser.contexts[0]
-            
-            # 找到关键词Tab
-            page = None
-            for pg in context.pages:
-                if 'arithmetic-index' in pg.url:
-                    page = pg
-                    break
-            
-            if not page:
-                result["error"] = "未找到关键词Tab"
+            print(f"[CDP] 连接成功！")
+            break
+        except Exception as e:
+            print(f"[CDP] 连接失败: {e}")
+            if attempt < 5:
+                print(f"[CDP] 3秒后重试...")
+                time.sleep(3)
+            else:
+                result["error"] = f"CDP连接5次失败: {e}"
                 return result
-            
-            print(f"→ 使用Tab3")
-            
-            # 1. 刷新页面
-            page.reload()
-            time.sleep(5)
-            print("  ✓ 页面刷新")
-            
-            # 2. 在搜索框输入关键词
-            inputs = page.query_selector_all('input')
-            for inp in inputs:
-                ph = inp.get_attribute('placeholder') or ''
-                if '关键词' in ph:
-                    inp.fill(keyword)
-                    # 不等待建议，直接回车
-                    page.keyboard.press('Enter')
-                    print(f"  ✓ 搜索: {keyword}")
-                    time.sleep(5)
-                    break
-            
-            # 3. 滚轮下滑，加载完整数据
-            for i in range(3):
-                page.mouse.wheel(0, 800)
-                time.sleep(1)
-            page.mouse.wheel(0, -300)
+
+    try:
+        context = browser.contexts[0]
+
+        # 找到关键词Tab
+        page = None
+        for pg in context.pages:
+            if 'arithmetic-index' in pg.url:
+                page = pg
+                break
+
+        if not page:
+            result["error"] = "未找到关键词Tab（arithmetic-index）"
+            return result
+
+        print(f"→ 使用现有关键词Tab")
+
+        # 1. 直接通过URL参数加载关键词
+        page.goto(f"https://creator.douyin.com/creator-micro/creator-count/arithmetic-index/analysis?keyword={keyword}&tab=related&appName=aweme&source=creator")
+        time.sleep(6)
+        print(f"  ✓ 关键词页加载: {keyword}")
+
+        # 2. 滚轮下滑，加载完整数据
+        for i in range(3):
+            page.mouse.wheel(0, 800)
             time.sleep(1)
-            print("  ✓ 滚轮下滑")
-            
-            # 4. 点击关联分析tab (force=True避免被遮挡)
-            page.click('text=关联分析', force=True, timeout=5000)
-            time.sleep(4)
-            text1 = page.evaluate('document.body.innerText')
-            result["related_words"] = parse_related_words(text1)
-            print(f"  ✓ 关联词: {len(result['related_words'])} 条")
-            
-            # 5. 点击人群分析tab
-            page.click('text=人群分析', force=True, timeout=5000)
-            time.sleep(4)
-            text2 = page.evaluate('document.body.innerText')
-            result["crowd_profile"] = parse_crowd_profile(text2)
-            print(f"  ✓ 人群画像: {len(result['crowd_profile'].get('地域分布', []))} 条地域")
-            
-            result["success"] = True
-            browser.close()
-            
+        page.mouse.wheel(0, -300)
+        time.sleep(2)
+        print("  ✓ 滚轮下滑")
+
+        # 4. 点击关联分析tab (force=True避免被遮挡)
+        page.click('text=关联分析', force=True, timeout=5000)
+        time.sleep(4)
+        text1 = page.evaluate('document.body.innerText')
+        result["related_words"] = parse_related_words(text1)
+        print(f"  ✓ 关联词: {len(result['related_words'])} 条")
+
+        # 5. 点击人群分析tab
+        page.click('text=人群分析', force=True, timeout=5000)
+        time.sleep(4)
+        text2 = page.evaluate('document.body.innerText')
+        result["crowd_profile"] = parse_crowd_profile(text2)
+        print(f"  ✓ 人群画像: {len(result['crowd_profile'].get('地域分布', []))} 条地域")
+
+        result["success"] = True
+        browser.close()
+        p.stop()
+
     except Exception as e:
         result["error"] = str(e)
         print(f"  ✗ 错误: {e}")
-    
+        try:
+            browser.close()
+            p.stop()
+        except:
+            pass
+
     return result
 
 if __name__ == "__main__":
