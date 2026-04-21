@@ -14,7 +14,7 @@ import time
 import re
 from playwright.sync_api import sync_playwright
 
-CDP_ENDPOINT = "http://127.0.0.1:9222"
+CDP_ENDPOINT = "http://127.0.0.1:18800"
 DEFAULT_KEYWORD = "建业电影小镇"
 
 def parse_related_words(text):
