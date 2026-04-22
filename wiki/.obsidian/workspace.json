@@ -6,7 +6,7 @@
       {
         "id": "7b758a193f97ed54",
         "type": "tabs",
-        "dimension": 41.8168709444845,
+        "dimension": 59.12040374909877,
         "children": [
           {
             "id": "e72f00d3aecb37bd",
@@ -25,7 +25,7 @@
       {
         "id": "5f57462cbaf05dd0",
         "type": "tabs",
-        "dimension": 58.1831290555155,
+        "dimension": 40.87959625090122,
         "children": [
           {
             "id": "e4459f7a3c6fd6d1",
@@ -263,7 +263,7 @@
       "bases:新建数据库": false
     }
   },
-  "active": "e4459f7a3c6fd6d1",
+  "active": "e72f00d3aecb37bd",
   "lastOpenFiles": [
     "电影小镇/演出节目/穿越德化街.md",
     "电影小镇/历史数据/客流营收分析.md",
