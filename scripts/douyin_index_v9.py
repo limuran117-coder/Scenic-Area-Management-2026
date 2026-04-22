@@ -321,6 +321,24 @@ async def crawl_with_cookies():
         await page.wait_for_load_state("networkidle", timeout=15000)
         await asyncio.sleep(5)  # 等待5秒确保页面完全加载
 
+        # 检查数据日期：如果显示的是昨天/更早的日期，则强制刷新页面
+        today_str = datetime.date.today().strftime("%Y-%m-%d")
+        yesterday_str = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        page_text_check = await page.evaluate("() => document.body.innerText")
+        if "数据日期" in page_text_check:
+            # 提取页面上的数据日期
+            import re
+            date_match = re.search(r"数据日期[：:]\s*(\d{4}-\d{2}-\d{2})", page_text_check)
+            if date_match:
+                page_date = date_match.group(1)
+                print(f"[刷新检查] 页面数据日期: {page_date}，今天日期: {today_str}")
+                if page_date != today_str:
+                    print(f"[刷新] 数据非今日({page_date} ≠ {today_str})，正在刷新页面...")
+                    await page.reload(timeout=15000)
+                    await page.wait_for_load_state("networkidle", timeout=15000)
+                    await asyncio.sleep(8)  # 刷新后等待8秒让数据加载
+                    print(f"[刷新] 页面已刷新，等待数据加载完成")
+
         # 获取页面文本内容(使用JavaScript获取完整文本,inner_text可能截断)
         try:
             page_text = await page.evaluate("() => document.body.innerText")
