@@ -39,7 +39,16 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 
 Add whatever helps you do your job. This is your cheat sheet.
 
-## 浏览器技术栈原则（2026-04-20确立）
+## 浏览器技术栈原则（2026-04-20确立，2026-04-23更新）
+
+**专属浏览器**：CDP端口 **18800**，所有任务统一用 `target=host`
+- 标签0：小红书灵犀 https://idea.xiaohongshu.com/idea/trend/trendAnalyze
+- 标签1：百度
+- 标签2：抖音订阅页 https://creator.douyin.com/creator-micro/creator-count/my-subscript
+- 标签3：抖音iframe
+- 标签4：抖音关键词页 https://creator.douyin.com/creator-micro/creator-count/arithmetic-index
+- 标签5：抖音iframe
+- 标签6：小红书探索页 https://www.xiaohongshu.com/explore
 
 **定时自动任务**：一律用 Playwright 脚本，不依赖 browser-use CLI
 - 抖音数据采集 → `douyin_index_v9.py`（Playwright）
