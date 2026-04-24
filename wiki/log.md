@@ -110,3 +110,9 @@
 - **Wiki文件：** wiki/电影小镇/历史数据/2026年/数据.md
 - **数据状态：** 4月20日后数据均为0（尚未录入）
 - **状态：** ✅ 完成
+## [2026-04-25] 周度技能探索 W17
+- 探索技能：deep-research + agentic-workflow-automation
+- deep-research：4阶段调研方法论（泛查→定向→验证→报告），适合竞品调研和政策研究
+- agentic-workflow-automation：生成可复用自动化蓝图（n8n），可用于日报自动化
+- 记录位置：wiki/技术配置/Skills探索笔记.md
+- 状态：✅ 完成
