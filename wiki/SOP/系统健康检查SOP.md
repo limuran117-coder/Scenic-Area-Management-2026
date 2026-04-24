@@ -189,3 +189,22 @@ openclaw gateway status 2>&1
 - [ ] 页面是懒加载吗？→ 是的话必须加滚动
 - [ ] 采集后数据完整性校验了吗？（8个景区都抓到？）
 - [ ] 单独跑了全流程验证了吗？（不是只看日志）
+
+---
+
+## 附：飞书API 400错误速查（2026-04-24）
+
+### 230002：Bot不在群里
+**错误信息：** `code: 230002, msg: Bot/User can NOT be out of the chat`
+
+**原因：** 飞书 Bot 被移出目标群组
+
+**解决：** 手动将 Bot 添加回群（李涯AI助手，App ID: cli_a941d5340639dcef）
+
+**预防：** 每次发报前检查 Bot 是否在群里
+
+### 400格式问题
+**原因：** 卡片 JSON 结构不完整（缺少必要字段）
+
+**解决：** 严格使用 schema:"2.0" + header.title.tag="plain_text" + body.elements[]
+
