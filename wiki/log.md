@@ -116,3 +116,75 @@
 - agentic-workflow-automation：生成可复用自动化蓝图（n8n），可用于日报自动化
 - 记录位置：wiki/技术配置/Skills探索笔记.md
 - 状态：✅ 完成
+
+## [2026-04-25] wiki_reorg | karpathy-wiki知识层重组启动
+- **重组目标**：按 karpathy-wiki 标准建立纯知识抽象层（concepts/entities/sources/）
+- **业务层不动**：电影小镇/竞品分析/全国景区案例库/行业知识/SOP/技术配置/ 原封不动
+- **安全机制**：纯添加不修改不删除，raw/文件永不可变
+### 新建文件
+- `wiki/schema.md`：wiki编写规范（页面类型/命名/link约定/分层原则）
+- `wiki/overview.md`：全域知识总览（三层体系+关键实体+核心概念+数据资产）
+### 新建概念页（concepts/）
+- `concepts/演艺景区.md`：产品即内容，口碑驱动，扩建悖论
+- `concepts/内容爆款规律.md`：情绪悬念>攻略型>情绪共鸣，小达人出圈
+- `concepts/季节性客流规律.md`：三峰值+德化街悖论
+- `concepts/景区抖音运营.md`：搜索指数/综合指数/关键词策略
+- `concepts/景区小红书运营.md`：灵犀后台三大模块
+### 新建实体页（entities/）
+- `entities/建业电影小镇.md`：年度153万/1.12亿，拳头《穿越德化街》
+- `entities/万岁山武侠城.md`：50亿+播放，王婆说媒/麻将比赛
+- `entities/只有河南.md`：11.3万赞情绪悬念爆款
+- `entities/清明上河园.md`：搜索指数39.9万，同比+549%
+- `entities/银基动物王国.md`：亲子乐园，Live图品牌定位
+- `entities/郑州方特欢乐世界.md`：POV跳楼机1.1万赞
+- `entities/大唐不夜城.md`：夜游标杆，情绪悬念+本地达人矩阵
+- `entities/抖音平台.md`：搜索指数/综合指数/7个竞品关键词
+- `entities/小红书平台.md`：灵犀后台/种草逻辑
+### 下一步
+- sources/ 归档页（将四月日报/报告摘要入sources/）
+- 旧目录清理/合并（待定）
+- 状态：**进行中**
+
+## [2026-04-25] wiki_reorg_phase2 | 第二阶段完成：sources归档+新增概念/实体
+### 新增概念页（concepts/）
+- `concepts/景区营销漏斗.md`：五层漏斗（曝光→兴趣→搜索→决策→到院）
+- `concepts/内容发布节奏.md`：每日节奏/节假日节奏/爆款时间窗口
+- `concepts/ROI分析.md`：内容ROI/获客ROI/转化ROI，扩建案例
+- `concepts/景区类型.md`：五大类型分类（演艺/主题乐园/文旅小镇/古镇/自然）
+- `concepts/平台算法规则.md`：抖音流量池机制/小红书推荐权重
+- `concepts/情绪营销.md`：情绪类型与传播力（悬念/焦虑/共鸣/反转/怀旧）
+### 新增实体页（entities/）
+- `entities/只有红楼梦戏剧幻城.md`：只有河南姐妹篇，红楼梦IP
+### 新建sources归档（sources/）
+- `sources/穿越德化街数据分析.md`：三年数据+扩建对比+六大洞察
+- `sources/抖音指数追踪日报.md`：7个竞品+我方，搜索/综合指数
+- `sources/竞品深度档案.md`：21个关键词池，7个核心竞品状态
+- `sources/客流营收历年分析.md`：历年客流+2026目标+YTD完成度
+### index.md更新
+- 概念页：从5个增至11个
+- 实体页：从9个增至10个
+- sources归档：从0增至4个
+### 状态：✅ 第二阶段完成
+
+## [2026-04-25] wiki_reorg_phase3 | 第三阶段完成：queries归档+去重分析+INGEST记录
+### 新增queries归档（queries/）
+- `queries/2026-04-25-Wiki重组决策.md`：重组背景/决策/安全机制/执行结果
+- `queries/知识层与业务层关系.md`：两层分离原则/依赖关系/实际例子
+- `queries/抖音与小红书平台差异.md`：核心差异/内容策略/发布节奏/协同策略
+- `queries/旧目录与知识层重叠分析.md`：重叠分析结论/不是冗余是分层
+### 新增sources归档（sources/）
+- `sources/2026-04-25Wiki重组.md`：karpathy-wiki重组全记录（INGEST记录）
+### 去重分析结论
+- 行业知识/景区类型/ vs concepts/景区类型.md：不是冗余，是业务层详细+知识层摘要
+- 竞品分析/ vs sources/：不是冗余，是业务层数据+知识层说明
+- entities/ vs 竞品分析/：不是冗余，是实体摘要+详细分析
+- 结论：**无完全重复文件，无需删除**
+### index.md更新
+- queries归档：从0增至4个
+- sources归档：从4增至5个
+### 知识层最终规模
+- concepts/: 11个 ✅
+- entities/: 10个 ✅
+- sources/: 5个 ✅
+- queries/: 4个 ✅
+### 状态：✅ 重组完成
