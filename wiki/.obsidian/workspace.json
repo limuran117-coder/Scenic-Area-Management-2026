@@ -6,7 +6,7 @@
       {
         "id": "7b758a193f97ed54",
         "type": "tabs",
-        "dimension": 59.12040374909877,
+        "dimension": 53.99719495091164,
         "children": [
           {
             "id": "e72f00d3aecb37bd",
@@ -25,7 +25,7 @@
       {
         "id": "5f57462cbaf05dd0",
         "type": "tabs",
-        "dimension": 40.87959625090122,
+        "dimension": 46.00280504908836,
         "children": [
           {
             "id": "e4459f7a3c6fd6d1",
@@ -265,6 +265,7 @@
   },
   "active": "e72f00d3aecb37bd",
   "lastOpenFiles": [
+    "queries/穿越德化街三重困境.md",
     "sources/建业电影小镇阶段性数据表.md",
     "竞品分析/抖音指数每日追踪.md",
     "raw/建业电影小镇阶段性数据表.xlsx",
@@ -291,7 +292,6 @@
     "entities/万岁山武侠城.md",
     "entities/小红书平台.md",
     "entities/银基动物王国.md",
-    "entities/郑州方特欢乐世界.md",
     "sources",
     "目录.base",
     "电影小镇/运营规划",
