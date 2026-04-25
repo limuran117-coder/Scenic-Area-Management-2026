@@ -242,6 +242,7 @@ The goal: Be helpful without being annoying. Check in a few times a day, do usef
 2. **记忆系统** - MEMORY.md是否臃肿？topics/是否需要整理？
 3. **定时任务** - cron是否正常执行？
 4. **整体效率** - 有没有更优的工作方式？
+5. **GitHub同步** - memory/dreaming + wiki知识层commit推送（今天已确认）
 
 ## Make It Yours
 
