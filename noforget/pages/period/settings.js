@@ -236,3 +236,11 @@ Page({
     }
   },
 
+
+
+  onCopyUrl: function () {
+    return {
+      query: '',
+    }
+  },
+
