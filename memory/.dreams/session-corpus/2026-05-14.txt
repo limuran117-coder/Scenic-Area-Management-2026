@@ -1,0 +1,12 @@
+[main/sessions/main/1c373ea6-2c0d-42df-a782-a2c4e29e49b4.jsonl#L8] Assistant: CDP 18800 端口正常，多个页面和 worker 在线。静默退出。
+[main/sessions/main/1c373ea6-2c0d-42df-a782-a2c4e29e49b4.jsonl#L10] Assistant: ✅ CDP 18800 健康探针通过
+[main/sessions/main/1e2c17a9-9f89-46a4-bff5-0cf80e9ad6d6.jsonl#L8] Assistant: CDP 18800 端口正常，返回了有效的浏览器调试数据。静默退出。
+[main/sessions/main/1e2c17a9-9f89-46a4-bff5-0cf80e9ad6d6.jsonl#L10] Assistant: CDP 18800 端口探测通过 ✅
+[main/sessions/main/2e445e0f-3cca-478b-92f9-4fd91ca5e33b.jsonl#L8] Assistant: CDP 18800 端口正常，9个页面+3个Service Worker在线。静默退出。
+[main/sessions/main/2e445e0f-3cca-478b-92f9-4fd91ca5e33b.jsonl#L10] Assistant: ✅ CDP 18800 探针通过，静默退出。
+[main/sessions/main/3560cdd6-2a97-42c2-bc11-a4d296644bb3.jsonl#L8] Assistant: CDP 18800 端口正常，9个页面/worker在线。静默退出。
+[main/sessions/main/3560cdd6-2a97-42c2-bc11-a4d296644bb3.jsonl#L10] Assistant: ✅ CDP 18800 健康 — 9个目标在线（5 pages + 3 service workers + 1 worker），于 2026-05-14 02:00 探针通过。
+[main/sessions/main/37e51317-4865-4c98-a98d-bae3efebce88.jsonl#L8] Assistant: CDP 18800 端口正常，响应包含9个调试页面。静默退出。
+[main/sessions/main/37e51317-4865-4c98-a98d-bae3efebce88.jsonl#L10] Assistant: CDP 18800 端口健康，9个调试页面在线。探针通过。
+[main/sessions/main/9d74cc34-bf12-48f7-8a30-0760e5749e86.jsonl#L8] Assistant: CDP 18800 正常，9个页面+worker存活。静默退出。
+[main/sessions/main/9d74cc34-bf12-48f7-8a30-0760e5749e86.jsonl#L10] Assistant: ✅ CDP 18800 健康，探针通过。
