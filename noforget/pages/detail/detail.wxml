@@ -1,0 +1,134 @@
+<!-- pages/detail/detail.wxml v2 - 5主题独立视觉详情页 -->
+<!-- 每个主题有独特的背景/数字/装饰/情感氛围 -->
+
+<!-- 动态class绑定: themeClass 由 detail.js 根据 categoryId 计算注入 -->
+<view class="detail-page {{item ? 'cat-' + item.categoryId : ''}} {{item && item.coverImage ? 'has-cover' : 'no-cover'}}">
+
+  <!-- ========== 顶部导航 ========== -->
+  <view class="detail-nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="detail-nav-content">
+      <view class="detail-back-btn" bindtap="goBack">
+        <text class="detail-back-arrow">←</text>
+      </view>
+      <!-- 无封面时显示Logo -->
+      <view class="detail-nav-logo" wx:if="{{!item.coverImage}}">
+        <image class="detail-nav-logo-img" src="/images/logo.png" mode="aspectFit"></image>
+      </view>
+      <view class="detail-edit-btn" bindtap="goToEdit">
+        <text class="detail-edit-text">Edit</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 有封面时的沉浸式大卡片 ========== -->
+  <block wx:if="{{item && item.coverImage}}">
+    <view class="detail-cover-block">
+      <!-- 原始封面图 -->
+      <image class="detail-cover-img" src="{{item.coverImage}}" mode="aspectFill"></image>
+      <!-- 全局暗色叠加（文字可读） -->
+      <view class="detail-cover-overlay"></view>
+      <!-- 顶部渐变（导航栏融入） -->
+      <view class="detail-cover-fade-top"></view>
+      <!-- 右上角编辑 -->
+      <view class="detail-cover-top-right">
+        <view class="detail-cover-action-btn" bindtap="goToEdit">
+          <text>✎</text>
+        </view>
+      </view>
+      <!-- 主体文字区 -->
+      <view class="detail-cover-content">
+        <!-- 分类标签 -->
+        <view class="detail-cover-tag">
+          <text>{{item.icon}}</text>
+          <text class="detail-cover-tag-name">{{item.name}}</text>
+        </view>
+        <!-- 核心大数字 -->
+        <view class="detail-cover-number">
+          <view class="detail-cover-main-row">
+            <text class="detail-cover-days">{{item.countdownPreciseDays}}</text>
+            <text class="detail-cover-days-label">{{item.preciseIsPast ? '天已过' : '天'}}</text>
+          </view>
+          <text class="detail-cover-hms">{{item.countdownHms}}</text>
+        </view>
+        <!-- 标题 -->
+        <text class="detail-cover-title">{{item.title}}</text>
+        <!-- 日期 -->
+        <text class="detail-cover-date">{{item.dateStr}}</text>
+      </view>
+      <!-- 底部渐变 -->
+      <view class="detail-cover-fade-bottom"></view>
+    </view>
+  </block>
+
+  <!-- ========== 无封面时的数字主展示区 ========== -->
+  <block wx:if="{{item && !item.coverImage}}">
+    <!-- 无封面：Logo区 -->
+    <view class="detail-no-cover-logo">
+      <image class="detail-logo-img" src="/images/logo.png" mode="aspectFit"></image>
+    </view>
+
+    <!-- 无封面：主数字大字 -->
+    <view class="detail-no-cover-hero">
+      <view class="detail-no-cover-main-row">
+        <text class="detail-no-cover-days">{{item.countdownPreciseDays}}</text>
+        <text class="detail-no-cover-days-label">{{item.preciseIsPast ? '天已过' : '天'}}</text>
+      </view>
+      <text class="detail-no-cover-hms">{{item.countdownHms}}</text>
+    </view>
+
+    <!-- 无封面：标题+日期 -->
+    <view class="detail-no-cover-header">
+      <text class="detail-no-cover-title">{{item.title}}</text>
+      <text class="detail-no-cover-date">{{item.dateStr}}{{item.isRecurring ? ' · 每年循环' : ''}}</text>
+    </view>
+
+    <!-- 无封面：小字温馨话（胶囊样式） -->
+    <view class="detail-no-cover-sentence-pill">
+      <text class="detail-no-cover-sentence-text">{{item.countdownSentence}}</text>
+    </view>
+  </block>
+
+  <!-- ========== 详情信息区（卡片容器） ========== -->
+  <view class="detail-info-section" wx:if="{{item}}">
+
+    <!-- 分隔装饰线 -->
+    <view class="detail-divider"></view>
+
+    <!-- 核心描述 -->
+    <view class="detail-description-card">
+      <text class="detail-main-text">{{item.detailMain}}</text>
+      <text class="detail-sub-text">{{item.detailSub}}</text>
+    </view>
+
+    <!-- 里程碑（仅一次性事件显示） -->
+    <view class="detail-milestone-row" wx:if="{{item.milestone}}">
+      <text class="detail-milestone-text">{{item.milestone}}</text>
+    </view>
+
+    <!-- 循环型额外显示：已过去 X 年 X 月 -->
+    <view class="detail-elapsed-card" wx:if="{{item.isRecurring && item.countdownSentence.indexOf('已过去') > -1}}">
+      <text class="detail-elapsed-icon">{{item.icon}}</text>
+      <text class="detail-elapsed-text">{{item.countdownSentence}}</text>
+    </view>
+
+  </view>
+
+  <!-- ========== 底部三按钮 ========== -->
+  <view class="detail-bottom-actions">
+    <view class="detail-action-btn" bindtap="goToEdit">
+      <text>编辑</text>
+    </view>
+    <view class="detail-action-sep">|</view>
+    <view class="detail-action-btn" bindtap="toggleRemind">
+      <text class="{{remindEnabled ? 'action-active' : ''}}">{{remindEnabled ? '已提醒' : '提醒'}}</text>
+    </view>
+    <view class="detail-action-sep">|</view>
+    <view class="detail-action-btn" bindtap="shareCard">
+      <text>分享</text>
+    </view>
+  </view>
+
+  <!-- 隐藏的分享 Canvas -->
+  <canvas canvas-id="shareCanvas" style="width:300px;height:420px;position:absolute;left:-9999px;top:-9999px;"></canvas>
+
+</view>

@@ -111,7 +111,7 @@ async def check_and_load_cookies(context):
     import tempfile
     
     # 优先从Chrome SQLite数据库读取cookie（如果存在）
-    sqlite_db = os.path.expanduser("~/.cache/douyin_chrome_profile/Default/Cookies")
+    sqlite_db = os.path.expanduser("~/.openclaw/chrome-profile-18800/Default/Cookies")
     if os.path.exists(sqlite_db):
         try:
             conn = sqlite3.connect(sqlite_db)
@@ -167,9 +167,9 @@ async def login_and_get_cookies():
     """打开浏览器让用户登录,获取Cookie(窗口保持打开)"""
     from playwright.async_api import async_playwright
 
-    PROFILE_DIR = os.path.expanduser("~/.cache/douyin_chrome_profile")
+    PROFILE_DIR = os.path.expanduser("~/.openclaw/chrome-profile-18800")
     DEBUG_PORT = 9223
-    CDP_ENDPOINT_FILE = os.path.expanduser("~/.cache/douyin_chrome_profile/cdp_endpoint.txt")
+    CDP_ENDPOINT_FILE = os.path.expanduser("~/.openclaw/chrome-profile-18800/cdp_endpoint.txt")
 
     async with async_playwright() as p:
         os.makedirs(PROFILE_DIR, exist_ok=True)
@@ -316,7 +316,7 @@ async def crawl_with_cookies():
     """使用保存的Cookie采集数据
 
     策略:
-    1. 使用固定 Chrome Profile(~/.cache/douyin_chrome_profile/)
+    1. 使用固定 Chrome Profile(~/.openclaw/chrome-profile-18800/)
     2. 优先通过 CDP 连接到已打开的 Chrome(窗口常开,复用登录态)
     3. 如果没有已打开的 Chrome,则启动新的
     4. 采集完成后只关闭 Page,不关闭 Browser(保持窗口常开)
@@ -331,9 +331,9 @@ async def crawl_with_cookies():
         "data_url": CRAWL_URL
     }
 
-    PROFILE_DIR = os.path.expanduser("~/.cache/douyin_chrome_profile")
+    PROFILE_DIR = os.path.expanduser("~/.openclaw/chrome-profile-18800")
     DEBUG_PORT = 9223  # 固定的调试端口,避免冲突
-    CDP_ENDPOINT_FILE = os.path.expanduser("~/.cache/douyin_chrome_profile/cdp_endpoint.txt")
+    CDP_ENDPOINT_FILE = os.path.expanduser("~/.openclaw/chrome-profile-18800/cdp_endpoint.txt")
 
     async with async_playwright() as p:
         browser = None
