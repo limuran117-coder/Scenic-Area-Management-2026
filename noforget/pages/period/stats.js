@@ -259,3 +259,21 @@ Page({
     return `从现在的数据看，你的节奏比较稳定，平均 ${stats.avgCycle} 天，${trendSummary ? trendSummary.driftLabel : '最近一次与平均值接近'}。继续保持记录，这页会越来越像一份真正属于你的身体时间档案。`
   }
 })
+
+
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage: function () {
+    return {
+      title: 'No Forget - 别忘记重要日子',
+      path: '/pages/index/index',
+    }
+  },
+
+  onShareTimeline: function () {
+    return {
+      title: 'No Forget - 别忘记重要日子',
+    }
+  },
+

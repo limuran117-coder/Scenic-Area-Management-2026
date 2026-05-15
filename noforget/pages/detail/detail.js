@@ -848,3 +848,21 @@ Page({
     })
   }
 })
+
+
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage: function () {
+    return {
+      title: 'No Forget - 别忘记重要日子',
+      path: '/pages/index/index',
+    }
+  },
+
+  onShareTimeline: function () {
+    return {
+      title: 'No Forget - 别忘记重要日子',
+    }
+  },
+
