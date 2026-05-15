@@ -1,186 +1,146 @@
-<!-- pages/add/add.wxml - 添加/编辑倒计时 -->
-<view class="container" style="background: {{theme.background}};">
-  <!-- 顶部导航 -->
+<view class="container theme-{{currentTheme}}">
+
   <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
     <view class="nav-content">
-      <view class="back-btn" bindtap="goBack">
-        <text style="color: {{theme.textPrimary}};">←</text>
+      <view class="nav-side nav-side-left" bindtap="goBack">
+        <image class="nav-icon-image" src="/static/icons/system/back.svg" mode="aspectFit"></image>
       </view>
-      <text class="nav-title" style="color: {{theme.textPrimary}};">{{isEdit ? '编辑' : '新建'}}</text>
+      <text class="nav-title">NO FORGET</text>
+      <view class="nav-side nav-side-right">
+        <image class="nav-icon-image" src="/static/icons/system/bell.svg" mode="aspectFit"></image>
+      </view>
     </view>
   </view>
 
-  <!-- 表单 -->
-  <view class="form">
-    <!-- 名称 -->
-    <view class="form-item">
-      <text class="form-label" style="color: {{theme.textSecondary}};">名称</text>
-      <input 
-        class="form-input"
-        style="color: {{theme.textPrimary}}; border-bottom: 1px solid {{theme.border}};"
-        placeholder="如：恋爱纪念日"
-        placeholder-style="color: {{theme.textSecondary}};"
-        value="{{title}}"
-        bindinput="onTitleInput"
-        maxlength="20"
-      />
-    </view>
+  <scroll-view scroll-y class="add-scroll">
+    <view class="create-content">
+      <view class="postcard-wrapper">
+        <view class="postcard {{coverImage ? 'has-cover' : ''}} {{categoryId === 'period' ? 'period-postcard' : ''}}">
+          <image wx:if="{{coverImage}}" class="postcard-bg" src="{{coverImage}}" mode="aspectFill"></image>
+          <view wx:if="{{coverImage}}" class="postcard-overlay"></view>
 
-    <!-- 日期选择 -->
-    <view class="form-item">
-      <text class="form-label" style="color: {{theme.textSecondary}};">日期</text>
-      <picker 
-        mode="date" 
-        value="{{targetDate}}" 
-        bindchange="onDateChange"
-        start="1900-01-01"
-        end="2099-12-31"
-      >
-        <view class="date-picker" style="border-bottom: 1px solid {{theme.border}};">
-          <text style="color: {{title ? theme.textPrimary : theme.textSecondary}};">{{targetDate || '请选择日期'}}</text>
-          <text style="color: {{theme.textSecondary}};">📅</text>
-        </view>
-      </picker>
-    </view>
+          <view class="postcard-inner">
+            <block wx:if="{{categoryId === 'period'}}">
+              <view class="period-special-preview">
+                <view class="period-preview-mark"></view>
+                <text class="period-preview-kicker">LUNA CARE</text>
+                <text class="period-preview-title">姨妈日专属追踪</text>
+                <text class="period-preview-desc">记录开始日期后，系统会根据周期自动推算下次姨妈、重点阶段与日历提示。</text>
+                <view class="period-preview-tags">
+                  <text>周期预测</text>
+                  <text>日历标注</text>
+                  <text>温柔提醒</text>
+                </view>
+              </view>
+            </block>
 
-    <!-- 分类选择 -->
-    <view class="form-item">
-      <text class="form-label" style="color: {{theme.textSecondary}};">分类</text>
-      <view class="category-grid">
-        <block wx:for="{{categories}}" wx:key="id">
-          <view
-            class="category-item {{selectedCategory === item.id ? 'active' : ''}}"
-            style="border-color: {{selectedCategory === item.id ? theme.textAccent : theme.border}}; border-radius: {{theme.radiusBtn || '12px'}};"
-            bindtap="selectCategory"
-            data-id="{{item.id}}"
-          >
-            <image class="category-icon" src="{{item.iconPath}}" mode="aspectFit" style="width:22px;height:22px;"></image>
-            <text class="category-name" style="color: {{selectedCategory === item.id ? theme.textPrimary : theme.textSecondary}};">{{item.name}}</text>
-          </view>
-        </block>
-      </view>
-    </view>
-
-    <!-- 提醒设置 -->
-    <view class="form-item">
-      <text class="form-label" style="color: {{theme.textSecondary}};">提醒</text>
-      <view class="remind-options">
-        <view 
-          class="remind-item {{remindDays === 0 ? 'active' : ''}}"
-          style="border-color: {{remindDays === 0 ? theme.textAccent : theme.border}};"
-          bindtap="setRemind"
-          data-days="0"
-        >
-          <text style="color: {{remindDays === 0 ? theme.textAccent : theme.textSecondary}};">当天</text>
-        </view>
-        <view 
-          class="remind-item {{remindDays === 1 ? 'active' : ''}}"
-          style="border-color: {{remindDays === 1 ? theme.textAccent : theme.border}};"
-          bindtap="setRemind"
-          data-days="1"
-        >
-          <text style="color: {{remindDays === 1 ? theme.textAccent : theme.textSecondary}};">提前1天</text>
-        </view>
-        <view 
-          class="remind-item {{remindDays === 7 ? 'active' : ''}}"
-          style="border-color: {{remindDays === 7 ? theme.textAccent : theme.border}};"
-          bindtap="setRemind"
-          data-days="7"
-        >
-          <text style="color: {{remindDays === 7 ? theme.textAccent : theme.textSecondary}};">提前7天</text>
-        </view>
-        <view 
-          class="remind-item {{remindDays === -1 ? 'active' : ''}}"
-          style="border-color: {{remindDays === -1 ? theme.textAccent : theme.border}};"
-          bindtap="setRemind"
-          data-days="-1"
-        >
-          <text style="color: {{remindDays === -1 ? theme.textAccent : theme.textSecondary}};">不提醒</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- 封面照片 -->
-    <view class="form-item">
-      <text class="form-label" style="color: {{theme.textSecondary}};">封面照片</text>
-      <view class="cover-picker" bindtap="pickCoverImage">
-        <view class="cover-image-wrapper" wx:if="{{coverImage}}">
-          <image class="cover-image" src="{{coverImage}}" mode="aspectFill"></image>
-          <view class="cover-overlay">
-            <text class="cover-change" style="color: #FFF;">点击更换</text>
+            <block wx:else>
+              <view class="pc-category-row">
+                <text class="pc-category-en">{{previewCategoryEn}}</text>
+                <text class="pc-category-cn">{{previewCategoryName}}</text>
+              </view>
+              <view class="pc-center" wx:if="{{targetDate}}">
+                <text class="pc-num">{{previewCountdownDays}}</text>
+              </view>
+              <view class="pc-input-wrap">
+                <input
+                  class="pc-title-input"
+                  placeholder="给这个时刻起个名字"
+                  placeholder-class="pc-placeholder"
+                  value="{{title}}"
+                  bindinput="onTitleInput"
+                  maxlength="20"
+                />
+              </view>
+            </block>
           </view>
         </view>
-        <view class="cover-placeholder" wx:else style="border: 1px dashed {{theme.border}};">
-          <text class="cover-add-icon">📷</text>
-          <text class="cover-add-text" style="color: {{theme.textSecondary}};">添加封面照片</text>
-          <text class="cover-add-hint" style="color: {{theme.textSecondary}};">可选，用于详情页展示</text>
+
+        <view class="btn-cover" wx:if="{{categoryId !== 'period'}}" bindtap="pickCoverImage">
+          <view class="btn-cover-icon"></view>
+          <text>{{coverImage ? '更换专属背景' : '添加专属背景'}}</text>
+        </view>
+        <view class="btn-cover-remove" wx:if="{{categoryId !== 'period' && coverImage}}" bindtap="removeCoverImage">移除背景</view>
+      </view>
+
+      <view class="settings-section">
+        <view class="mode-wrap" wx:if="{{categoryId !== 'period'}}">
+          <view class="mode-card {{mode === 'future' ? 'active' : ''}}" bindtap="switchToFuture">
+            <image class="mode-icon-image" src="/static/icons/system/future.svg" mode="aspectFit"></image>
+            <text class="mode-name">倒数未来</text>
+          </view>
+
+          <view class="mode-card {{mode === 'past' ? 'active' : ''}}" bindtap="switchToPast">
+            <image class="mode-icon-image" src="/static/icons/system/past.svg" mode="aspectFit"></image>
+            <text class="mode-name">累计时光</text>
+          </view>
+        </view>
+
+        <view class="setting-group">
+          <text class="setting-title">日期</text>
+          <picker mode="date" value="{{targetDate}}" bindchange="onDateChange" start="1900-01-01" end="2099-12-31">
+            <view class="date-picker-btn">
+              <view class="date-picker-left">
+                <view class="date-picker-icon"></view>
+                <text class="date-val">{{targetDate ? targetDate : '设置日期'}}</text>
+              </view>
+              <view class="date-arrow-icon"></view>
+            </view>
+          </picker>
+        </view>
+
+        <view class="setting-group">
+          <text class="setting-title">分类</text>
+          <view class="category-wrap">
+            <block wx:for="{{categories}}" wx:key="id">
+              <view class="cat-pill {{selectedCategory === item.id ? 'active' : ''}}" style="--cat-pill-color: {{item.color}}; --cat-pill-soft: {{item.colorLight}}; --cat-pill-ink: {{item.colorText}};" bindtap="selectCategory" data-id="{{item.id}}">
+                <text class="cat-name">{{item.name}}</text>
+              </view>
+            </block>
+          </view>
+        </view>
+
+        <view class="setting-group remind-group">
+          <text class="setting-title">提醒</text>
+          <view class="remind-flex">
+            <view class="remind-pill {{remindDays === 0 ? 'active' : ''}}" bindtap="setRemind" data-days="0">当天</view>
+            <view class="remind-pill {{remindDays === 1 ? 'active' : ''}}" bindtap="setRemind" data-days="1">提前1天</view>
+            <view class="remind-pill {{remindDays === 7 ? 'active' : ''}}" bindtap="setRemind" data-days="7">提前7天</view>
+            <view class="remind-pill {{remindDays === -1 ? 'active' : ''}}" bindtap="setRemind" data-days="-1">不提醒</view>
+          </view>
         </view>
       </view>
-      <view class="cover-remove" wx:if="{{coverImage}}" bindtap="removeCoverImage">
-        <text style="color: #FF3B30;">移除封面</text>
-      </view>
-    </view>
 
-    <!-- 预览（5主题独立视觉） -->
-    <view class="preview-section" wx:if="{{title && targetDate}}">
-      <text class="preview-title" style="color: {{theme.textSecondary}};">预览</text>
-      <view class="preview-card cat-{{selectedCategory}}" style="background: {{theme.cardBg}}; box-shadow: {{theme.shadow}};">
-        <view wx:if="{{coverImage}}" class="preview-cover">
-          <image src="{{coverImage}}" mode="aspectFill"></image>
-        </view>
-        <image wx:if="{{previewIconPath}}" class="preview-icon-img" src="{{previewIconPath}}" mode="aspectFit" style="width:28px;height:28px;"></image>
-        <text class="preview-days">{{previewCountdownDays}}</text>
-        <text class="preview-label">{{previewPreciseIsPast ? '天已过' : '天'}}</text>
-        <text class="preview-hms">{{previewCountdownHms}}</text>
-        <text class="preview-name" style="color: {{theme.textPrimary}};">{{title}}</text>
-      </view>
+      <view style="height: 260rpx;"></view>
     </view>
+  </scroll-view>
+
+  <view class="bottom-fab">
+    <view class="fab-btn-save {{isEdit ? 'half' : ''}}" bindtap="saveItem">
+      <text class="fab-zh">{{isEdit ? '保存这个时刻' : '记录这一天'}}</text>
+      <view class="fab-arrow"></view>
+    </view>
+    <view class="fab-btn-delete" wx:if="{{isEdit}}" bindtap="deleteItem">删除</view>
   </view>
 
-  <!-- 底部按钮 -->
-  <view class="bottom-buttons">
-    <!-- 保存按钮 -->
-    <view 
-      class="bottom-btn-primary {{isEdit ? '' : 'full-width'}}"
-      style="background: {{theme.textAccent}};"
-      bindtap="saveItem"
-    >
-      <text class="btn-zh" style="color: #FFF;">{{isEdit ? '保存修改' : '记录这一天'}}</text>
-      <text class="btn-en" style="color: rgba(255,255,255,0.75);">{{isEdit ? 'Save Changes' : 'Record This Day'}}</text>
-    </view>
-    <!-- 删除按钮（编辑时显示） -->
-    <view 
-      class="bottom-btn-danger {{isEdit ? '' : 'hide'}}"
-      style="background: {{theme.textAccent}};"
-      bindtap="deleteItem"
-    >
-      <text class="btn-zh" style="color: #FFF;">删除</text>
-      <text class="btn-en" style="color: rgba(255,255,255,0.75);">Delete</text>
-    </view>
-  </view>
-
-  <!-- 裁切弹层 -->
   <view class="crop-modal" wx:if="{{showCropper}}" catchtouchmove="preventTouch">
-    <!-- 隐藏canvas用于裁切 -->
     <canvas canvas-id="cropCanvas" class="crop-canvas" style="width: {{canvasWidth || 375}}px; height: {{canvasHeight || 240}}px;"></canvas>
-    <view class="crop-header">
+    <view class="crop-header" style="padding-top: {{statusBarHeight + 52}}px;">
       <text class="crop-cancel" bindtap="cancelCrop">取消</text>
-      <text class="crop-title">调整封面区域</text>
+      <text class="crop-title">调整影像区域</text>
       <text class="crop-confirm" bindtap="confirmCrop">完成</text>
     </view>
     <view class="crop-body">
       <view class="crop-wrapper" bindtouchstart="onCropTouchStart" bindtouchmove="onCropTouchMove" bindtouchend="onCropTouchEnd">
         <image class="crop-image" src="{{cropImagePath}}" mode="widthFix"></image>
-        <!-- 裁切框：固定高度，可上下拖动 -->
-        <view class="crop-frame" style="top: {{cropFrameTop}}px;"></view>
-        <!-- 半透明遮罩 -->
+        <view class="crop-frame" style="top: {{cropFrameTop}}px; height: {{cropFrameHeight}}px;"></view>
         <view class="crop-mask-top" style="height: {{cropFrameTop}}px;"></view>
         <view class="crop-mask-bottom" style="top: {{cropFrameTop + cropFrameHeight}}px;"></view>
-        <!-- 拖动提示 -->
         <view class="crop-hint">
           <text style="color: #FFF; font-size: 13px;">↑↓ 拖动选择显示区域</text>
         </view>
       </view>
     </view>
   </view>
+
 </view>

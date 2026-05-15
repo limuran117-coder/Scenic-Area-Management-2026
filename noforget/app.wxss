@@ -1,6 +1,4 @@
-/* noforget/app.wxss - 全局样式 + CSS变量 + 动效系统 */
-/* 遵循 UI/UX Pro Max 精细化标准 */
-/* 关键词：Soft UI Evolution（柔和UI进化版） + Minimalism */
+/* noforget/app.wxss - Morandi Morning Mist UI system */
 
 @import 'theme-default.wxss';
 
@@ -26,23 +24,103 @@
 
 /* ===== 全局基础 ===== */
 page {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: var(--theme-background);
+  font-family: var(--theme-font-family);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(216, 183, 200, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 12%, rgba(183, 202, 216, 0.12), transparent 32%),
+    radial-gradient(circle at 48% 92%, rgba(230, 184, 148, 0.08), transparent 38%),
+    var(--theme-background);
   color: var(--theme-text-primary);
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* 触控反馈优化（UX: Touch Target 44x44px） */
   touch-action: manipulation;
+}
+
+.mist-canvas {
+  background:
+    radial-gradient(circle at 10% 4%, rgba(216, 183, 200, 0.5), transparent 35%),
+    radial-gradient(circle at 92% 8%, rgba(183, 202, 216, 0.42), transparent 32%),
+    radial-gradient(circle at 52% 92%, rgba(230, 184, 148, 0.32), transparent 42%),
+    linear-gradient(180deg, var(--theme-background-warm), var(--theme-background));
+  background-size: 130% 130%;
+  animation: mist-drift 16s ease-in-out infinite alternate;
+}
+
+.mist-panel {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.52)),
+    radial-gradient(circle at 0% 0%, rgba(216,183,200,0.22), transparent 42%),
+    radial-gradient(circle at 100% 20%, rgba(183,202,216,0.18), transparent 44%);
+  border: 1rpx solid var(--theme-border);
+  border-radius: var(--theme-radius-card-rpx);
+  box-shadow: var(--theme-shadow-card);
+  backdrop-filter: blur(18px) saturate(138%);
+  -webkit-backdrop-filter: blur(18px) saturate(138%);
+}
+
+.mist-primary {
+  background:
+    radial-gradient(circle at 30% 10%, rgba(216,183,200,0.52), transparent 50%),
+    radial-gradient(circle at 82% 28%, rgba(183,202,216,0.48), transparent 52%),
+    linear-gradient(135deg, rgba(168,121,114,0.92), rgba(164,145,174,0.9));
+  color: #FFFDF8;
+  border: 1rpx solid rgba(255,255,255,0.42);
+  box-shadow: 0 16rpx 34rpx rgba(168,121,114,0.16);
+}
+
+.mist-secondary {
+  background: rgba(255,255,255,0.48);
+  color: var(--theme-text-secondary);
+  border: 1rpx solid var(--theme-border);
+}
+
+.text-brand {
+  font-size: 24rpx;
+  font-weight: 600;
+  letter-spacing: 4rpx;
+  color: var(--theme-text-primary);
+}
+
+.text-title {
+  font-size: var(--theme-title-size);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--theme-text-primary);
+  letter-spacing: 0.3rpx;
+}
+
+.text-section {
+  font-size: var(--theme-section-size);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--theme-text-primary);
+}
+
+.text-body {
+  font-size: var(--theme-body-size);
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--theme-text-secondary);
+}
+
+.text-caption {
+  font-size: var(--theme-caption-size);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--theme-text-muted);
 }
 
 /* ===== 通用卡片 ===== */
 /* UX: Layout - Content Jumping prevention, aspect-ratio reserved */
 .card {
-  background: var(--theme-card-bg);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.52)),
+    radial-gradient(circle at 0% 0%, rgba(216,183,200,0.2), transparent 42%);
   border-radius: var(--theme-radius-card, 16px);
   box-shadow: var(--theme-shadow-card);
+  border: 1px solid var(--theme-border);
   overflow: hidden;
   /* UX: Transform Performance - 动画只改 transform/opacity */
   transition:
@@ -68,15 +146,18 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--theme-radius-btn, 12px);
+  border-radius: var(--theme-radius-btn, 999rpx);
   min-height: 44px;    /* UX: Touch Target ≥44px */
   min-width: 44px;
   padding: 10px 20px;
   font-size: 15px;
   font-weight: 600;
   color: #ffffff;
-  background: var(--theme-accent);
-  border: none;
+  background:
+    radial-gradient(circle at 30% 10%, rgba(216,183,200,0.52), transparent 50%),
+    radial-gradient(circle at 82% 28%, rgba(183,202,216,0.48), transparent 52%),
+    linear-gradient(135deg, rgba(168,121,114,0.92), rgba(164,145,174,0.9));
+  border: 1rpx solid rgba(255,255,255,0.42);
   cursor: pointer;     /* UX: cursor-pointer on clickable */
   outline: none;
   transition:
@@ -87,9 +168,8 @@ page {
 }
 
 .btn:active {
-  transform: scale(0.93) translateY(1px);
-  /* UX: 视觉下沉感 + 弹性回弹 */
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transform: scale(0.97) translateY(1px);
+  box-shadow: 0 8rpx 20rpx rgba(91,74,60,0.08);
 }
 
 .btn-ghost {
@@ -119,11 +199,17 @@ page {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background:
+    radial-gradient(circle at 50% 55%, rgba(216,183,200,0.26), transparent 36%),
+    rgba(47, 42, 37, 0.24);
   z-index: 300;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+}
+
+.mist-bloom {
+  animation: mist-bloom 420ms var(--ease-out-quart) both;
 }
 
 /* ===== 微交互：涟漪效果（按需启用） ===== */
@@ -166,10 +252,44 @@ page {
   100% { background-position: -200% 0; }
 }
 
+@keyframes mist-drift {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 72%; }
+}
+
+@keyframes mist-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(10rpx);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes mist-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(18rpx);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .skeleton {
     animation: none;
     background: var(--theme-border);
+  }
+
+  .mist-canvas,
+  .mist-bloom {
+    animation: none;
   }
 }
 

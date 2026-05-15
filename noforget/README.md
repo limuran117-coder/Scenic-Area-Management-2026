@@ -1,101 +1,279 @@
-# No Forget - 倒计时纪念日小程序
+# No Forget · 记住每一个重要时刻
 
-> 记住每一个重要时刻
+<div align="center">
 
-一个简洁、温馨的倒计时/正向计时小程序，支持双向计时（倒计时 + 正向计时），帮助用户记录生命中每一个值得铭记的日子。
+![WeChat Miniprogram](https://img.shields.io/badge/WeChat-小程序-v1.0-blue?style=flat-square&logo=wechat)
+![Platform](https://img.shields.io/badge/Platform-微信小程序-green?style=flat-square&logo=weixin)
+![License](https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square&logo=opensourceinitiative)
+![Cloud](https://img.shields.io/badge/Cloud-腾讯云CloudBase-purple?style=flat-square&logo=serverless)
+![Node](https://img.shields.io/badge/Node.js-18.15-orange?style=flat-square&logo=node.js)
 
-## 功能特性
+**一款以「裂变传播」为核心设计目标的纪念日小程序**
+**每一次打卡，都是一张博物馆级画报的诞生**
 
-### 核心功能
-- ✅ **双向计时** - 支持倒计时和正向计时两种模式
-- ✅ **多种分类** - 生日、恋爱、结婚、忌日、重要的人等
-- ✅ **三套主题** - Apple 风格 / 莫兰迪风格 / 复古风格
-- ✅ **微信登录** - 一键授权，同步数据
-- ✅ **服务通知** - 纪念日当天/前一天自动提醒
-- ✅ **精美分享** - 一键生成分享卡片
-- ✅ **数据导出** - 随时导出备份
-
-### 支持的分类
-🎂 生日 | 💕 恋爱开始 | 💒 结婚纪念日 | ❤️ 父母生日 | 🌹 长辈生日 | 🍼 孩子生日 | 🐾 宠物生日 | 🙏 忌日 | 👤 重要的人 | 🏆 目标达成 | ✈️ 旅行出发 | 📱 产品发布 | 🎓 毕业 | 💼 工作纪念日 | 🎊 节日
-
-## 技术栈
-
-- **框架**: 微信小程序原生开发
-- **样式**: WXSS + CSS Variables 主题系统
-- **存储**: 微信本地存储 + 微信云开发（可选）
-- **登录**: 微信 getUserProfile
-
-## 项目结构
-
-```
-noforget/
-├── app.js              # 应用入口
-├── app.json            # 应用配置
-├── app.wxss            # 全局样式
-├── pages/
-│   ├── index/          # 首页（列表）
-│   ├── add/            # 添加/编辑
-│   ├── detail/         # 详情页
-│   └── mine/           # 我的页面
-├── components/         # 组件
-├── utils/
-│   ├── countdown.js    # 倒计时核心算法
-│   └── categories.js   # 分类配置
-├── cloud/              # 云开发函数
-└── assets/             # 静态资源
-```
-
-## 开发指南
-
-### 1. 安装依赖
-本项目为微信原生开发，无需额外安装依赖。
-
-### 2. 配置云开发环境
-在 `app.js` 中配置云环境 ID：
-```javascript
-wx.cloud.init({
-  env: 'your-cloud-env-id',  // 替换为你的云环境ID
-  traceUser: true,
-})
-```
-
-### 3. 导入项目
-1. 下载微信开发者工具
-2. 导入项目，选择 `noforget` 文件夹
-3. 填入 AppID（可在微信公众平台申请）
-4. 编译运行
-
-### 4. 配置订阅消息
-在微信公众平台配置订阅消息模板，添加模板后修改提醒相关代码。
-
-## 设计规范
-
-### 配色方案
-
-| 主题 | 背景 | 主文字 | 次要文字 | 强调色 |
-|------|------|--------|----------|--------|
-| Apple | #FFFFFF | #1D1D1F | #86868B | #0071E3 |
-| 莫兰迪 | #F2EDE8 | #5D5448 | #9C9486 | #A78B7A |
-| 复古 | #FBF7F0 | #4A3728 | #8B7355 | #C4A35A |
-
-### 字体
-- 数字：系统字体，200 weight，超大字号（72-120px）
-- 标签：系统字体，12-14px，字母间距加大
-- 标题：系统字体，16-22px，500 weight
-
-## 更新日志
-
-### v1.0.0 (2024)
-- 首个版本发布
-- 支持双向计时
-- 三套主题切换
-- 微信登录和数据存储
-- 服务通知提醒
-
-## License
-
-MIT License
+</div>
 
 ---
 
-**No Forget** - 记住每一个重要时刻 ❤️
+## ✨ 核心功能
+
+### 🖼️ 哈苏画廊级纪念画报
+- **严格比例裁切**：750:650 固定比例，绝不变形
+- **拍立得质感**：纯白相框 + 物理投影悬浮感
+- **四色色卡系统**：每个分类拥有专属强调色
+- **双模式生成**：使用当前封面 or 上传专属背景
+
+### ⏳ 正向计时 × 倒数未来
+- **双向时间模式**：点击「累计时光」自动回拨100天
+- **实时刷新**：倒计时精确到时分秒
+
+### 🥠 浅草寺灵签盲盒
+- 15条浅草寺风格灵签（大吉/吉/半吉/小吉/末吉/平）
+- 盲盒抖动动画 + 震动反馈
+- 每小时刷新机制
+
+### 📅 每日黄历
+- 本地农历算法 + 真实节气节日
+- 百度百科「历史上的今天」
+- 传统宜忌 + 现代版提示
+
+### 💧 姨妈追踪
+- 姨妈记录与预测
+- 统计分析与提醒
+- 云端同步
+
+---
+
+## 🏗️ 技术架构
+
+### 前端
+```
+微信小程序 · WXML/WXSS/JS
+├── pages/
+│   ├── index/          # 首页纪念日列表
+│   ├── add/            # 新建/编辑纪念日
+│   ├── detail/         # 纪念日详情+画报生成
+│   ├── almanac/        # 每日黄历+灵签
+│   ├── period/         # 姨妈记录
+│   └── mine/           # 个人中心
+├── components/         # 卡片/主题选择器
+└── utils/
+    ├── countdown.js    # 核心倒计时计算
+    ├── countdownStore.js # 数据存储+云同步
+    ├── period.js        # 姨妈计算
+    └── periodCloud.js   # 姨妈云同步
+```
+
+### 云端（CloudBase）
+```
+环境ID: cloud1-d5gxwed6aa4581e97
+地域: ap-shanghai（上海）
+
+云函数（Node.js 18.15）:
+├── countdown-sync    # 纪念日CRUD + 云端同步
+├── period-sync      # 姨妈记录CRUD
+├── send-reminder    # 定时提醒推送（每天09:00）
+├── get-slogan       # 每日一言
+└── ai-chat          # AI闲聊
+
+云数据库:
+├── countdown-sync    # 纪念日集合（按openId隔离）
+└── period-sync      # 姨妈记录集合
+```
+
+### 数据隔离
+- 每个用户数据通过 `openId` 严格隔离
+- 云函数调用需微信登录态验证
+- 数据库读写规则：仅用户本人可访问自己的数据
+
+---
+
+## 🚀 快速开始
+
+### 环境要求
+- Node.js ≥ 18.15
+- 微信开发者工具 ≥ 1.06+
+- 腾讯云 CloudBase CLI
+
+### 本地开发
+
+```bash
+# 克隆项目
+git clone https://github.com/limuran117-coder/NO-FORGET.git
+cd NO-FORGET
+
+# 安装依赖（如需要）
+npm install
+
+# 使用微信开发者工具打开项目
+# 导入路径: /path/to/NO-FORGET
+# AppID: wxbc9d6a843f482a34
+
+# 开通云开发
+# 微信开发者工具 → 云开发 → 开通 → 关联环境 cloud1-d5gxwed6aa4581e97
+```
+
+### 部署云函数
+
+```bash
+# 安装 CloudBase CLI
+npm install -g @cloudbase/cli
+
+# 登录
+tcb login
+
+# 部署所有云函数
+tcb fn deploy --services
+
+# 或单独部署
+tcb fn deploy countdown-sync -e cloud1-d5gxwed6aa4581e97
+tcb fn deploy period-sync -e cloud1-d5gxwed6aa4581e97
+tcb fn deploy send-reminder -e cloud1-d5gxwed6aa4581e97
+```
+
+### 配置
+
+在 `cloudbaserc.json` 中确认环境ID：
+
+```json
+{
+  "envId": "cloud1-d5gxwed6aa4581e97",
+  "region": "ap-shanghai"
+}
+```
+
+---
+
+## 📁 项目结构
+
+```
+noforget/
+├── app.js / app.json / app.wxss    # 小程序入口
+├── cloud/                           # 云函数源码
+│   ├── countdown-sync/              # 纪念日云函数
+│   ├── period-sync/                 # 姨妈云函数
+│   ├── send-reminder/              # 定时提醒
+│   ├── get-slogan/                 # 每日一言
+│   └── ai-chat/                   # AI闲聊
+├── pages/                           # 页面
+│   ├── index/                      # 首页
+│   ├── add/                        # 新建/编辑
+│   ├── detail/                     # 详情+画报
+│   ├── almanac/                    # 黄历
+│   ├── period/                     # 姨妈
+│   └── mine/                       # 个人中心
+├── components/                      # 组件
+│   ├── card/                       # 纪念卡片
+│   ├── tab-bar/                    # 底部导航
+│   └── theme-picker/               # 主题选择
+├── utils/                           # 工具函数
+│   ├── countdown.js                # 倒计时核心算法
+│   ├── countdownStore.js           # 存储+云同步
+│   ├── period.js                   # 姨妈计算
+│   └── icons.js                    # emoji图标库
+├── cloudbaserc.json                # 云环境配置
+└── project.config.json             # 项目配置
+```
+
+---
+
+## 🧪 测试
+
+### 测试方案
+详见 `docs/测试方案-专业版.md`
+
+### 测试模块
+| 模块 | 内容 |
+|------|------|
+| A1-A6 | 前端UI交互测试（26个用例） |
+| B1-B3 | 云函数测试（17个用例） |
+| C | 数据库安全测试（10个用例） |
+| D | 压力与异常测试（10个用例） |
+
+### 通过标准
+```
+P0缺陷（数据丢失/隐私泄露）：0个
+P1缺陷（功能失效）：<3个
+P2缺陷（体验问题）：<10个
+覆盖率：100%
+```
+
+---
+
+## 🔧 开发规范
+
+### 代码风格
+- JS: ES6+，禁用 `var`
+- WXSS: BEM命名，组件级样式隔离
+- 异步: 全部 `async/await`，禁用回调
+
+### Git提交规范
+```
+feat: 新功能
+fix: Bug修复
+docs: 文档更新
+style: 代码格式（不影响功能）
+refactor: 重构
+test: 测试相关
+chore: 构建/工具
+```
+
+### 云函数开发
+```javascript
+// 云函数模板
+const cloud = require('wx-server-sdk');
+cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+
+exports.main = async (event, context) => {
+  const { action, data } = event;
+  const openId = cloud.getWXContext().OPENID;
+
+  switch (action) {
+    case 'upsert':
+      return await upsertItem(openId, data);
+    case 'getItems':
+      return await getItems(openId);
+    case 'delete':
+      return await deleteItem(openId, data.itemId);
+    default:
+      throw new Error('Unknown action');
+  }
+};
+```
+
+---
+
+## 📊 版本记录
+
+### v1.1.x（2026-05 进行中）
+- ✅ Canvas画报生成（1080×1440）
+- ✅ 正向/倒数双向计时
+- ✅ 姨妈追踪
+- ✅ 云函数数据同步
+- ✅ 每日黄历+灵签
+- 🔧 防御性编程强化（iOS NaN防护）
+- 🔧 UI交互完整性
+- 🔧 多设备同步一致性
+
+### v1.0（2026-04 初始版本）
+- 纪念日CRUD
+- 分类主题系统
+- 基础倒计时
+
+---
+
+## 👥 团队
+
+- **开发者**: 李涯（AI助手）
+- **测试**: Codex
+- **产品**: 站长
+
+---
+
+## 📄 License
+
+MIT License · 2026
+
+---
+
+*记住每一个重要时刻 · No Forget*

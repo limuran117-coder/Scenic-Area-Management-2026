@@ -1,5 +1,19 @@
-// utils/countdown.js - 倒计时/正向计时核心算法 v2
-// 支持 isRecurring（年度循环）和 startDate（存活计时）
+// utils/countdown.js - 倒计时/正向计时核心算法 v3
+// 修复：iOS Date NaN 问题，新增 parseDateSafe
+
+/**
+ * iOS 安全日期解析：'YYYY-MM-DD' → Date
+ * iOS Safari 不认横杠，换成斜杠后构造避免 NaN
+ */
+function parseDateSafe(str) {
+  if (!str) return new Date(NaN)
+  if (str instanceof Date) return new Date(str.getTime())
+  const normalized = str.replace(/\-/g, '/')
+  const d = new Date(normalized)
+  // ★ 修复：不再静默返回当前时间，改为返回 Invalid Date
+  // 调用方通过 isNaN(d.getTime()) 检测异常，而不是被假数据欺骗
+  return isNaN(d.getTime()) ? new Date(NaN) : d
+}
 
 /**
  * 计算两个日期之间的差值（天为单位）
@@ -8,8 +22,8 @@
  * @returns {Object} { days, isPast, diffMs }
  */
 function getDiff(targetDate, nowDate = new Date()) {
-  const target = new Date(targetDate)
-  const now = new Date(nowDate)
+  const target = parseDateSafe(targetDate)
+  const now = parseDateSafe(nowDate)
 
   // 重置到00:00:00只比较日期
   const targetDay = new Date(target.getFullYear(), target.getMonth(), target.getDate())
@@ -22,49 +36,6 @@ function getDiff(targetDate, nowDate = new Date()) {
     days: Math.abs(diffDays),
     isPast: diffMs < 0,
     diffMs
-  }
-}
-
-/**
- * 计算精确的年月日时分秒差值
- * @param {Date|string} targetDate
- * @param {Date} nowDate
- * @returns {Object}
- */
-function getExactDiff(targetDate, nowDate = new Date()) {
-  const target = new Date(targetDate)
-  const now = new Date(nowDate)
-
-  let years = target.getFullYear() - now.getFullYear()
-  let months = target.getMonth() - now.getMonth()
-  let days = target.getDate() - now.getDate()
-  let hours = target.getHours() - now.getHours()
-  let minutes = target.getMinutes() - now.getMinutes()
-  let seconds = target.getSeconds() - now.getSeconds()
-
-  // 规范化负值
-  if (seconds < 0) { seconds += 60; minutes -= 1 }
-  if (minutes < 0) { minutes += 60; hours -= 1 }
-  if (hours < 0) { hours += 24; days -= 1 }
-  if (days < 0) {
-    const lastMonth = new Date(target.getFullYear(), target.getMonth(), 0)
-    days += lastMonth.getDate()
-    months -= 1
-  }
-  if (months < 0) { months += 12; years -= 1 }
-
-  const isPast = target.getTime() < now.getTime()
-
-  return {
-    years: Math.abs(years),
-    months: Math.abs(months),
-    days: Math.abs(days),
-    hours: Math.abs(hours),
-    minutes: Math.abs(minutes),
-    seconds: Math.abs(seconds),
-    totalDays: Math.floor(Math.abs(target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
-    isPast,
-    rawDiff: target.getTime() - now.getTime()
   }
 }
 
@@ -82,40 +53,58 @@ function getExactDiff(targetDate, nowDate = new Date()) {
  * @returns {Object} { days, hours, minutes, seconds, totalFormatted, isPast }
  */
 function getMainCountdown(item, now = new Date()) {
+  if (item && item.direction === 'countup') {
+    const elapsed = getElapsedText(item, now)
+    return {
+      days: elapsed.totalDays || 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      totalFormatted: `${elapsed.totalDays || 0}天 00:00:00`,
+      isPast: true
+    }
+  }
+
   const targetStr = item.targetDate
   // 防御：null/undefined/空字符串/invalid → 兜底返回0
   if (!targetStr || typeof targetStr !== 'string' || targetStr.trim() === '') {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0, totalFormatted: '0天 00:00:00', isPast: false }
+    return {days: 0, hours: 0, minutes: 0, seconds: 0, totalFormatted: '0天 00:00:00', isPast: false}
   }
-  const target = new Date(targetStr)
+  const target = parseDateSafe(targetStr)
   if (isNaN(target.getTime())) {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0, totalFormatted: '0天 00:00:00', isPast: false }
+    return {days: 0, hours: 0, minutes: 0, seconds: 0, totalFormatted: '0天 00:00:00', isPast: false}
   }
   let endDate
 
   if (item.isRecurring) {
     // 年度循环：找今年或明年的同月同日
-    endDate = new Date(now.getFullYear(), target.getMonth(), target.getDate())
-    if (endDate <= now) {
-      endDate = new Date(now.getFullYear() + 1, target.getMonth(), target.getDate())
+    // ★ 修复：使用 +1 天作为终点，让纪念日当天整日显示为"0天"而非"已过"
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const recurringTarget = parseDateSafe(targetStr)
+    let anniversary = new Date(now.getFullYear(), recurringTarget.getMonth(), recurringTarget.getDate())
+    if (anniversary < todayStart) {
+      // 纪念日本身已过（昨天或更早）→ 推到明年
+      anniversary = new Date(now.getFullYear() + 1, recurringTarget.getMonth(), recurringTarget.getDate())
     }
+    // endDate = 纪念日次日00:00，保证纪念日当天整日都不算past
+    endDate = new Date(anniversary.getFullYear(), anniversary.getMonth(), anniversary.getDate() + 1)
   } else {
-    // 一次性倒计时：直接以目标日期为终点
-    endDate = new Date(target.getFullYear(), target.getMonth(), target.getDate())
+    // 一次性倒计时：目标日整天都算“当天”，到次日 00:00 才转为 past
+    endDate = new Date(target.getFullYear(), target.getMonth(), target.getDate() + 1)
   }
 
   const diffMs = endDate.getTime() - now.getTime()
-  const isPast = diffMs < 0
+  const isPast = diffMs <= 0
   const absMs = Math.abs(diffMs)
 
-  const days  = Math.floor(absMs / (1000 * 60 * 60 * 24))
+  const days = Math.floor(absMs / (1000 * 60 * 60 * 24))
   const hours = Math.floor((absMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-  const mins  = Math.floor((absMs % (1000 * 60 * 60)) / (1000 * 60))
-  const secs  = Math.floor((absMs % (1000 * 60)) / 1000)
+  const mins = Math.floor((absMs % (1000 * 60 * 60)) / (1000 * 60))
+  const secs = Math.floor((absMs % (1000 * 60)) / 1000)
 
   const totalFormatted = `${days}天 ${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`
 
-  return { days, hours, minutes: mins, seconds: secs, totalFormatted, isPast }
+  return {days, hours, minutes: mins, seconds: secs, totalFormatted, isPast}
 }
 
 /**
@@ -133,11 +122,42 @@ function getMainCountdown(item, now = new Date()) {
  * @returns {Object} { text, years, months, days, totalDays, isPast }
  */
 function getElapsedText(item, now = new Date()) {
-  const { startDate, isRecurring, targetDate } = item
+  const {startDate, isRecurring, targetDate, direction} = item
 
-  // 防御：startDate 无效时（isRecurring=true）兜底为一次性处理
+  // 累计模式：只要有 startDate，就按照起始日期累计
   if (startDate && typeof startDate === 'string' && startDate.trim() !== '') {
-    const start = new Date(startDate)
+    const start = parseDateSafe(startDate)
+    if (!isNaN(start.getTime()) && direction === 'countup') {
+      const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate())
+      const nowDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      let totalDays = Math.floor((nowDay.getTime() - startDay.getTime()) / (1000 * 60 * 60 * 24))
+      const isPast = totalDays >= 0
+      totalDays = Math.abs(totalDays)
+      if (isPast) totalDays += 1
+
+      let y = now.getFullYear() - start.getFullYear()
+      let m = now.getMonth() - start.getMonth()
+      let d = now.getDate() - start.getDate()
+
+      if (d < 0) {
+        m -= 1
+        const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 0)
+        d += prevMonth.getDate()
+      }
+      if (m < 0) { m += 12; y -= 1 }
+
+      let text
+      if (y >= 1) {
+        text = `已过去 ${y} 年 ${m} 个月`
+      } else if (m >= 1) {
+        text = `已过去 ${m} 个月`
+      } else {
+        text = `已过去 ${totalDays} 天`
+      }
+
+      return {text, years: y, months: m, days: d, totalDays, isPast}
+    }
+
     if (!isNaN(start.getTime()) && isRecurring) {
       // 年度循环的已过去时间计算
       let y = now.getFullYear() - start.getFullYear()
@@ -151,7 +171,10 @@ function getElapsedText(item, now = new Date()) {
       }
       if (m < 0) { m += 12; y -= 1 }
 
-      const totalDays = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+      // ★ 修复：统一使用零点归一化计算 totalDays，保持与 countup 路径一致
+      const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate())
+      const nowDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      const totalDays = Math.floor((nowDay.getTime() - startDay.getTime()) / (1000 * 60 * 60 * 24))
       const isPast = true
 
       let text
@@ -163,50 +186,21 @@ function getElapsedText(item, now = new Date()) {
         text = `已过去 ${totalDays} 天`
       }
 
-      return { text, years: y, months: m, days: d, totalDays, isPast }
+      return {text, years: y, months: m, days: d, totalDays, isPast}
     }
   }
 
   // 一次性倒计时（isRecurring=false 或 startDate 无效）
   if (targetDate && typeof targetDate === 'string' && targetDate.trim() !== '') {
-    const diff = cd.getDiff(targetDate, now)
+    const diff = getDiff(targetDate, now)
     const text = diff.isPast
       ? `已过 ${diff.days} 天`
       : `还有 ${diff.days} 天`
-    return { text, years: 0, months: 0, days: diff.days, totalDays: diff.days, isPast: diff.isPast }
+    return {text, years: 0, months: 0, days: diff.days, totalDays: diff.days, isPast: diff.isPast}
   }
 
   // 兜底：完全无效的数据
-  return { text: '还有 0 天', years: 0, months: 0, days: 0, totalDays: 0, isPast: false }
-}
-
-/**
- * 格式化显示文本
- */
-function formatDisplayText(diff, isCountUp = false) {
-  if (diff.isPast || isCountUp) {
-    if (diff.years > 0) {
-      return `${diff.years}年${diff.months}个月${diff.days}天`
-    } else if (diff.months > 0) {
-      return `${diff.months}个月${diff.days}天`
-    } else if (diff.days > 0) {
-      return `${diff.days}天`
-    } else {
-      return `${diff.hours}小时`
-    }
-  } else {
-    if (diff.years > 0) {
-      return `${diff.years}年${diff.months}个月`
-    } else if (diff.months > 0) {
-      return `${diff.months}个月${diff.days}天`
-    } else if (diff.days > 0) {
-      return `${diff.days}天`
-    } else if (diff.hours > 0) {
-      return `${diff.hours}小时${diff.minutes}分钟`
-    } else {
-      return `${diff.minutes}分钟`
-    }
-  }
+  return {text: '还有 0 天', years: 0, months: 0, days: 0, totalDays: 0, isPast: false}
 }
 
 /**
@@ -242,12 +236,14 @@ function getPreciseCountdown(item, now = new Date()) {
  */
 function getNextMilestone(startDate, currentDays) {
   const milestones = [100, 200, 365, 500, 666, 1000, 1500, 2000, 3000, 3650, 5000, 10000]
+  const safeStart = parseDateSafe(startDate)
+  if (isNaN(safeStart.getTime())) return null
   for (const milestone of milestones) {
     if (milestone > currentDays) {
-      const targetDate = new Date(startDate)
+      const targetDate = new Date(safeStart)
       targetDate.setDate(targetDate.getDate() + milestone)
       const diff = getDiff(targetDate)
-      return { milestone, daysLeft: diff.days, targetDate }
+      return {milestone, daysLeft: diff.days, targetDate}
     }
   }
   return null
@@ -261,7 +257,7 @@ function formatNumber(num) {
 }
 
 function isToday(date) {
-  const d = new Date(date)
+  const d = parseDateSafe(date)
   const today = new Date()
   return d.getDate() === today.getDate() &&
     d.getMonth() === today.getMonth() &&
@@ -269,7 +265,7 @@ function isToday(date) {
 }
 
 function isTomorrow(date) {
-  const d = new Date(date)
+  const d = parseDateSafe(date)
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
   return d.getDate() === tomorrow.getDate() &&
@@ -279,14 +275,12 @@ function isTomorrow(date) {
 
 module.exports = {
   getDiff,
-  getExactDiff,
   getMainCountdown,
   getElapsedText,
-  formatDisplayText,
   formatNumber,
   getNextMilestone,
   isToday,
   isTomorrow,
   getCountdownSentence,
-  getPreciseCountdown   // 兼容旧接口，透传到 getMainCountdown
+  getPreciseCountdown // 兼容旧接口，透传到 getMainCountdown
 }

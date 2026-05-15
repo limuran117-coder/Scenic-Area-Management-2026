@@ -1,185 +1,295 @@
-/* pages/mine/mine.wxss - 我的页面样式 */
+/* pages/mine/mine.wxss - 极致审美版 v19 */
 
 .container {
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--theme-background);
+  padding-bottom: 100rpx;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(239, 225, 169, 0.42) 0, rgba(239, 225, 169, 0) 38%),
+    radial-gradient(circle at 92% 6%, rgba(205, 231, 255, 0.58) 0, rgba(205, 231, 255, 0) 36%),
+    radial-gradient(circle at 18% 78%, rgba(251, 207, 222, 0.4) 0, rgba(251, 207, 222, 0) 40%),
+    radial-gradient(circle at 82% 86%, rgba(174, 231, 222, 0.3) 0, rgba(174, 231, 222, 0) 42%),
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.52) 0, rgba(255, 255, 255, 0) 44%),
+    linear-gradient(180deg, #FAFCFF, #F7F9FE);
+  background-size: 146% 146%;
+  animation: mine-mist-drift 17s ease-in-out infinite alternate;
 }
 
-/* ===== 顶部导航 ===== */
+@keyframes mine-mist-drift {
+  0% { background-position: 8% 4%; }
+  100% { background-position: 92% 96%; }
+}
+
+.card-shadow {
+  box-shadow: 0 14rpx 40rpx rgba(26,26,26,0.05);
+}
+
+/* ===== 1. 顶部导航 ===== */
 .nav-bar {
-  padding: 0 20px 16px 20px;
+  padding: 0 40rpx 20rpx;
 }
 
-.nav-title {
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--theme-text-primary);
-}
-
-/* ===== 用户区域 ===== */
-.user-section {
-  padding: 0 20px 24px 20px;
-}
-
-.user-card {
-  border-radius: var(--theme-radius-card, 18px);
-  padding: 22px;
-  background: var(--theme-card-bg);
-  box-shadow: var(--theme-shadow-card);
-}
-
-.user-info {
+.nav-content {
   display: flex;
   align-items: center;
-  gap: 16px;
+  height: 44px;
 }
 
-.user-info.not-login {
-  cursor: pointer;
-}
-
-.avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--theme-background);
-  flex-shrink: 0;
-}
-
-.avatar-placeholder {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--theme-background);
+.back-btn {
+  width: 64rpx;
+  height: 64rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  font-size: 24px;
 }
 
-.user-detail {
+.back-arrow-icon {
+  width: 38rpx;
+  height: 38rpx;
+}
+
+/* ===== 2. 用户头部：居中大画幅设计，彻底解决椭圆 ===== */
+.user-header {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  flex: 1;
+  align-items: center;
+  padding: 40rpx 0 60rpx;
+}
+
+/* 🌟 核心修复：锁死 button 宽高，永远正圆 */
+.avatar-wrapper {
+  width: 180rpx !important;
+  height: 180rpx !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 50%;
+  background: #FFFFFF;
+  position: relative;
+  border: 4rpx solid #FFFFFF;
+  box-shadow: 0 16rpx 40rpx rgba(26,26,26,0.05);
+}
+
+.avatar-wrapper::after {
+  border: none;
+}
+
+.avatar-real {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #F6F5F4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-line-icon {
+  width: 58rpx;
+  height: 58rpx;
+  border-radius: 50%;
+  border: 3rpx solid #B7B2A8;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.avatar-line-icon::before,
+.avatar-line-icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #B7B2A8;
+}
+
+.avatar-line-icon::before {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  top: 11rpx;
+}
+
+.avatar-line-icon::after {
+  width: 34rpx;
+  height: 10rpx;
+  border-radius: 999rpx 999rpx 8rpx 8rpx;
+  bottom: 10rpx;
+}
+
+.icon-wrap {
+  width: 48rpx;
+  height: 48rpx;
+  position: relative;
+  flex-shrink: 0;
+}
+
+
+/* 右下角精致小相机图标 */
+.edit-badge {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 56rpx;
+  height: 56rpx;
+  background: #FFF;
+  border-radius: 50%;
+  font-size: 28rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+}
+
+.user-text-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30rpx;
 }
 
 .nickname {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--theme-text-primary);
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #1A1A1A;
+  letter-spacing: 2rpx;
 }
 
 .user-desc {
-  font-size: 13px;
-  color: var(--theme-text-secondary);
+  font-size: 26rpx;
+  color: #787671;
+  margin-top: 10rpx;
+  letter-spacing: 1rpx;
 }
 
-/* ===== 统计区域 ===== */
-.stats-section {
-  padding: 0 20px 24px 20px;
+/* ===== 3. 数据仪表盘 ===== */
+.dashboard-section {
+  padding: 0 40rpx 40rpx;
 }
 
-.stats-card {
-  border-radius: var(--theme-radius-card, 18px);
-  padding: 20px 16px;
-  background: var(--theme-card-bg);
-  box-shadow: var(--theme-shadow-card);
+.dashboard-card {
+  border-radius: 40rpx;
+  padding: 40rpx 20rpx;
   display: flex;
   justify-content: space-around;
   align-items: center;
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
 }
 
-.stat-item {
+.dash-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
   flex: 1;
+  gap: 8rpx;
 }
 
-.stat-number {
-  font-size: 28px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--theme-text-primary);
+.dash-num {
+  font-size: 56rpx;
+  font-weight: 300;
+  font-family: 'Helvetica Neue', sans-serif;
 }
 
-.stat-label {
-  font-size: 12px;
-  color: var(--theme-text-secondary);
+.dash-label {
+  font-size: 24rpx;
+  color: #787671;
 }
 
-.stat-divider {
+.dash-divider {
   width: 1px;
-  height: 40px;
-  background: var(--theme-border);
-  opacity: 0.5;
+  height: 60rpx;
+  background: #E5E3DF;
 }
 
-/* ===== 菜单区域 ===== */
+/* ===== 4. 功能面板 ===== */
 .menu-section {
-  padding: 0 20px;
+  padding: 0 40rpx;
 }
 
 .menu-group {
-  background: var(--theme-card-bg);
-  border-radius: var(--theme-radius-card, 18px);
-  margin-bottom: 14px;
+  border-radius: 28rpx;
+  margin-bottom: 30rpx;
   overflow: hidden;
-  box-shadow: var(--theme-shadow-card);
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 15px 16px;
-  gap: 12px;
-  border-bottom: 1px solid var(--theme-border);
-  transition: background var(--theme-duration-micro, 150ms) var(--theme-ease-out-quart, ease-out);
+  padding: 30rpx 40rpx;
+  gap: 24rpx;
+  border-bottom: 1rpx solid rgba(229,227,223,0.9);
+  transition: background 0.2s;
 }
 
-.menu-item:last-child {
+.menu-item.no-border {
   border-bottom: none;
 }
 
 .menu-item:active {
-  background: var(--theme-background);
-  opacity: 0.7;
+  background: rgba(86,69,212,0.05);
 }
 
-.menu-icon {
-  font-size: 18px;
-  width: 24px;
-  text-align: center;
+.icon-wrap {
+  width: 48rpx;
+  height: 48rpx;
+  background: transparent !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
   flex-shrink: 0;
+}
+
+.icon-wrap.danger {
+  background: transparent !important;
 }
 
 .menu-text {
   flex: 1;
-  font-size: 15px;
-  color: var(--theme-text-primary);
+  font-size: 30rpx;
+  color: #2F2A25;
+  font-weight: 400;
+  letter-spacing: 1rpx;
 }
 
 .menu-arrow {
-  font-size: 20px;
+  font-size: 40rpx;
+  color: #B4AB9F;
   font-weight: 300;
-  color: var(--theme-text-secondary);
-  flex-shrink: 0;
 }
 
-/* ===== 底部 ===== */
+.logout-text {
+  color: #FF3B30;
+}
+
+/* ===== 5. 底部品牌印记 ===== */
 .footer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 40px 20px 80px 20px;
+  padding: 60rpx 0;
+  gap: 12rpx;
 }
 
-.footer text {
-  font-size: 12px;
-  color: var(--theme-text-secondary);
+.footer-version {
+  font-size: 20rpx;
+  color: #A4A097;
+  letter-spacing: 2rpx;
+}
+
+.footer-slogan {
+  font-size: 24rpx;
+  color: #787671;
+  letter-spacing: 1rpx;
 }

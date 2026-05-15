@@ -1,97 +1,175 @@
 // pages/index/index.js - 首页逻辑 v2
 // 修复：direction丢失 / 使用 getMainCountdown + getElapsedText / 每秒刷新
-// 5主题独立视觉：详情页按分类独立，首页按用户主题整体着色
-const app = getApp()
+
 const countdown = require('../../utils/countdown.js')
 const categories = require('../../utils/categories.js')
+
+// ─── AI文案云端生成 ──────────────────────────────────────────
+const _sloganCache = {}
+const _sloganPending = {}
+
+function getSloganCacheKey(categoryId, itemId) {
+  const today = new Date().toISOString().slice(0, 10)
+  return `${categoryId}::${itemId || 'default'}::${today}`
+}
+
+function getSloganFromCloud(categoryId, itemId, onDone) {
+  const cacheKey = getSloganCacheKey(categoryId, itemId)
+  if (_sloganCache[cacheKey]) {
+    onDone(_sloganCache[cacheKey])
+    return
+  }
+  if (_sloganPending[cacheKey]) {
+    _sloganPending[cacheKey].push(onDone)
+    return
+  }
+  _sloganPending[cacheKey] = [onDone]
+
+  const finish = (slogan) => {
+    const callbacks = _sloganPending[cacheKey] || []
+    delete _sloganPending[cacheKey]
+    _sloganCache[cacheKey] = slogan
+    callbacks.forEach(cb => cb(slogan))
+  }
+
+  if (!wx.cloud || typeof wx.cloud.callFunction !== 'function') {
+    finish(categories.pickSubtitle(categoryId))
+    return
+  }
+
+  wx.cloud.callFunction({
+    name: 'get-slogan',
+    data: {categoryId},
+    success: res => {
+      if (res.errMsg?.includes('ok') && res.result?.success && res.result?.slogan) {
+        finish(res.result.slogan)
+      } else {
+        finish(categories.pickSubtitle(categoryId))
+      }
+    },
+    fail: () => finish(categories.pickSubtitle(categoryId))
+  })
+}
+
 const themeModule = require('../../utils/theme.js')
 const copyTemplates = require('../../utils/copyTemplates.js')
-const { getIconPath } = require('../../utils/icons.js')
+const {getIconPath} = require('../../utils/icons.js')
+const {buildAlmanacSync} = require('../../utils/almanac.js')
+const periodUtil = require('../../utils/period.js')
+const countdownStore = require('../../utils/countdownStore.js')
 
-// 5分类分享卡片配色（与 detail.js 保持一致）
-const SHARE_THEME = {
-  birthday:       { bg:'#1C0D00', num:'#FFE4B5', sub:'rgba(255,228,181,0.7)',  accent:'#D4A017', emoji:'🎂' },
-  love:           { bg:'#1A0515', num:'#FFB6C1', sub:'rgba(255,182,193,0.7)',  accent:'#E8719A', emoji:'💕' },
-  wedding:        { bg:'#FFFCF5', num:'#C9A96E', sub:'rgba(139,115,85,0.8)',   accent:'#C9A96E', emoji:'💒' },
-  death:          { bg:'#08081A', num:'#C8C8DC', sub:'rgba(200,200,220,0.6)',  accent:'#9090B0', emoji:'🙏', titleColor:'#E0E0EC' },
-  pet_birthday:   { bg:'#FFF8F0', num:'#C47830', sub:'rgba(122,72,32,0.8)',   accent:'#C47830', emoji:'🐾', titleColor:'#4A2810' }
-}
-function getShareTheme(catId) { return SHARE_THEME[catId] || SHARE_THEME.birthday }
-
-/**
- * 将主题颜色对象转成 CSS 变量字符串
- * 用于在 container 的 style 属性中注入
- */
 function buildThemeStyle(theme) {
   const vars = []
   if (!theme) return ''
-  if (theme.background)    vars.push(`background:${theme.background}`)
-  if (theme.textPrimary)    vars.push(`--theme-text-primary:${theme.textPrimary}`)
-  if (theme.textSecondary)  vars.push(`--theme-text-secondary:${theme.textSecondary}`)
-  if (theme.textAccent)     vars.push(`--theme-text-accent:${theme.textAccent}`)
-  if (theme.cardBg)         vars.push(`--theme-card-bg:${theme.cardBg}`)
-  if (theme.border)         vars.push(`--theme-border:${theme.border}`)
-  if (theme.shadow)        vars.push(`--theme-shadow:${theme.shadow}`)
-  if (theme.shadowCard)     vars.push(`--theme-shadow-card:${theme.shadowCard}`)
+  if (theme.background) vars.push(`background:${theme.background}`)
+  if (theme.fontFamily) vars.push(`font-family:${theme.fontFamily}`)
+  if (theme.textPrimary) vars.push(`--theme-text-primary:${theme.textPrimary}`)
+  if (theme.textSecondary) vars.push(`--theme-text-secondary:${theme.textSecondary}`)
+  if (theme.textAccent) vars.push(`--theme-text-accent:${theme.textAccent}`)
+  if (theme.cardBg) vars.push(`--theme-card-bg:${theme.cardBg}`)
+  if (theme.border) vars.push(`--theme-border:${theme.border}`)
+  if (theme.shadow) vars.push(`--theme-shadow:${theme.shadow}`)
+  if (theme.shadowCard) vars.push(`--theme-shadow-card:${theme.shadowCard}`)
   return vars.join(';')
 }
 
 Page({
   data: {
     statusBarHeight: 20,
+    navHeight: 64,
+    paddingTop: 20,
     listData: [],
-    hasLogin: false,
-    userInfo: null,
+    hasPeriodData: false,
     showThemePicker: false,
     currentTheme: 'apple',
     theme: {},
-    accentColor: '#0066cc',
     themes: [],
     hasMore: false,
     loadingMore: false,
     page: 1,
     pageSize: 20,
-    showDailyBanner: false,
-    dailyBanner: null
+    scrollIntoView: '',
+    showDailyBanner: true,
+    dailyBanner: null,
+    dailyHuangli: null,
+    isRefreshing: false
   },
 
   onLoad() {
-    const systemInfo = wx.getSystemInfoSync()
+    this.initNavigation()
+    const currentTheme = wx.getStorageSync('currentTheme') || 'apple'
+    const theme = themeModule.getTheme(currentTheme)
     this.setData({
-      statusBarHeight: systemInfo.statusBarHeight || 20,
+      currentTheme,
+      theme,
       themes: themeModule.getAllThemes()
     })
   },
 
-  onShow() {
-    const userInfo = app.globalData.userInfo
-    const hasLogin = app.globalData.hasLogin
-    const currentTheme = wx.getStorageSync('currentTheme') || 'apple'
-    const theme = themeModule.getTheme(currentTheme)
-
-    this.setData({
-      userInfo, hasLogin,
-      currentTheme, theme,
-      accentColor: theme.textAccent,
-      themeStyle: buildThemeStyle(theme),
-      cardBg: theme.cardBg || theme.background || '#ffffff'
-    })
-
-    this.loadItems()
-    this._startTick()
-    this._initDailyBanner()
+  initNavigation() {
+    try {
+      const windowInfo = wx.getWindowInfo()
+      const menuButtonInfo = wx.getMenuButtonBoundingClientRect()
+      const statusBarHeight = windowInfo.statusBarHeight || 20
+      const rawNavHeight = menuButtonInfo.bottom + (menuButtonInfo.top - statusBarHeight)
+      const navHeight = Math.max(menuButtonInfo.height + 12, rawNavHeight - 8)
+      this.setData({
+        paddingTop: statusBarHeight,
+        statusBarHeight,
+        navHeight: Math.round(navHeight),
+        totalTopHeight: Math.round(navHeight) + statusBarHeight
+      })
+    } catch(e) {
+      this.setData({paddingTop: 20, navHeight: 64})
+    }
   },
 
-  // ★ 每日首次温馨话Banner
+  async onShow() {
+    try {
+      const currentTheme = wx.getStorageSync('currentTheme') || 'apple'
+      const theme = themeModule.getTheme(currentTheme)
+      const userAvatar = wx.getStorageSync('userAvatar') || ''
+      this.setData({
+        currentTheme, theme, userAvatar,
+        themeStyle: buildThemeStyle(theme),
+        page: 1
+      })
+
+      // 定期从云端同步（每5分钟一次），避免多设备数据冲突
+      const now = Date.now()
+      const lastSync = this._lastCloudSync || 0
+      const needSync = (now - lastSync) > 300000
+      if (needSync) this._lastCloudSync = now
+      await this.loadItems({forceRefresh: needSync})
+
+      this._startTick()
+      this._initDailyBanner()
+      this._initDailyHuangli()
+      this.refreshAllSlogans()
+    } catch(e) {
+      console.error('onShow error:', e)
+    }
+  },
+
+  async onPullDownRefresh() {
+    this.setData({isRefreshing: true})
+    this.setData({page: 1})
+    wx.showLoading({title: '刷新中...', mask: true})
+    await this.loadItems({forceRefresh: true})
+    wx.hideLoading()
+    this.setData({isRefreshing: false})
+    wx.stopPullDownRefresh()
+  },
+
   _initDailyBanner() {
     if (!this._rawItems || this._rawItems.length === 0) {
-      this.setData({ dailyBanner: null, showDailyBanner: false })
+      this.setData({dailyBanner: null, showDailyBanner: false})
       return
     }
     const today = new Date().toDateString()
     const lastDate = wx.getStorageSync('lastBannerDate')
     if (lastDate === today) {
-      this.setData({ showDailyBanner: false })
+      this.setData({showDailyBanner: false})
       return
     }
     const topItem = this._rawItems[0]
@@ -101,263 +179,262 @@ Page({
     const copy = copyTemplates.getCopy(catId, elapsed.isPast, elapsed.totalDays, elapsed.years)
     const emoji = cat ? cat.icon : '✨'
     this.setData({
-      dailyBanner: { text: copy, emoji, catId },
+      dailyBanner: {text: copy, emoji, catId},
       showDailyBanner: true
     })
     wx.setStorageSync('lastBannerDate', today)
   },
 
-  dismissBanner() {
-    this.setData({ showDailyBanner: false })
+  dismissBanner() { this.setData({showDailyBanner: false}) },
+
+  _initDailyHuangli() {
+    const now = new Date()
+    const almanac = buildAlmanacSync(now)
+    this.setData({
+      dailyHuangli: {
+        solarDate: almanac.solarDate,
+        week: almanac.week,
+        lunarFull: almanac.lunarFull,
+        yi: Array.isArray(almanac.modernYi) && almanac.modernYi.length ? almanac.modernYi[0] : '记录灵感',
+        ji: Array.isArray(almanac.modernJi) && almanac.modernJi.length ? almanac.modernJi[0] : '精神内耗'
+      }
+    })
+  },
+
+  goToAlmanac() { wx.navigateTo({url: '/subpackages/almanac/pages/almanac/almanac'}) },
+
+  goHome() {
+    this.setData({scrollIntoView: ''})
+    setTimeout(() => this.setData({scrollIntoView: 'top-anchor'}), 0)
   },
 
   onHide() { this._stopTick() },
   onUnload() { this._stopTick() },
 
+  refreshAllSlogans() {
+    const items = this.data.listData
+    if (!items) return
+    items.forEach((item, idx) => {
+      const catId = item.category || item.categoryId
+      if (catId === 'period') return
+      getSloganFromCloud(catId, item.id || String(idx), slogan => {
+        if (this.data.listData[idx]?.cardSubtitle !== slogan) {
+          this.setData({[`listData[${idx}].cardSubtitle`]: slogan})
+        }
+      })
+    })
+  },
+
   _startTick() {
     this._stopTick()
-    this._tickTimer = setInterval(() => {
-      this._refreshCountdowns()
-    }, 1000)
+    this._tickTimer = setInterval(() => { this._refreshCountdowns() }, 1000)
   },
 
   _stopTick() {
-    if (this._tickTimer) {
-      clearInterval(this._tickTimer)
-      this._tickTimer = null
-    }
+    if (this._tickTimer) { clearInterval(this._tickTimer); this._tickTimer = null }
   },
 
-  // ★ 每秒刷新：只更新数字，不重新加载/排序
   _refreshCountdowns() {
     if (!this._rawItems || this._rawItems.length === 0) return
     const now = new Date()
-    const updated = this._rawItems.map(raw => {
+    const updateData = {}
+    let hasChanges = false
+    // 只更新时分秒，跳过天数和状态（减少 setData 传输量）
+    this._rawItems.forEach((raw, index) => {
+      if (raw.categoryId === 'period') return
       const main = countdown.getMainCountdown(raw, now)
-      return {
-        ...this.data.listData.find(d => d.id === raw.id),
-        countdownPrecise: main.totalFormatted,
-        countdownPreciseDays: main.days,
-        countdownHms: (main.totalFormatted.split(' ')[1] || ''),
-        preciseIsPast: main.isPast
+      const newHms = (main && main.totalFormatted) ? (main.totalFormatted.split(' ')[1] || '') : ''
+      const existing = this.data.listData[index] || {}
+      if (existing.countdownHms !== newHms) {
+        updateData[`listData[${index}].countdownHms`] = newHms
+        hasChanges = true
       }
     })
-    this.setData({ listData: updated })
+    if (hasChanges) this.setData(updateData)
   },
 
-  // ★ 重构 loadItems：使用新的 getMainCountdown + getElapsedText
-  loadItems() {
-    const localData = wx.getStorageSync('countdownItems') || []
-    const now = new Date()
+  onIconError(e) {
+    const idx = parseInt(e.currentTarget.dataset.index)
+    const item = this.data.listData[idx]
+    if (!item || item.iconLoadError) return
+    this.setData({[`listData[${idx}].iconLoadError`]: true})
+  },
 
-    const processedItems = localData.map(item => {
-      // ★ 从 item 本身读取 isRecurring/startDate（不再依赖 categories）
-      const itemData = {
-        targetDate: item.targetDate,
-        isRecurring: item.isRecurring ?? categories.isRecurringCategory(item.categoryId),
-        startDate: item.startDate || item.targetDate,
-        direction: item.direction
+  async loadItems(options = {}) {
+    try {
+      const needRefresh = options.forceRefresh || false
+      let localData = await countdownStore.getItems({refresh: needRefresh})
+
+      if (!Array.isArray(localData)) {
+        localData = []
       }
 
-      const main = countdown.getMainCountdown(itemData, now)
-      const elapsed = countdown.getElapsedText(itemData, now)
+      const now = new Date()
+      const processedItems = []
 
-      const cat = categories.getCategoryById(item.categoryId)
-      const d = new Date(item.targetDate)
-      const dateStr = `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`
+      for (let i = 0; i < localData.length; i++) {
+        const item = localData[i]
+        try {
+          if (!item || !item.id) continue
 
-      return {
-        id: item.id,
-        title: item.title,
-        dateStr,
-        targetDate: item.targetDate,
-        isPast: main.isPast,
+          if (item.categoryId === 'period') {
+            const entries = periodUtil.getEntries ? periodUtil.getEntries() : []
+            const settings = periodUtil.getSettings ? periodUtil.getSettings() : {}
+            let prediction = null
+            let statusInfo = {mainLabel: '暂无记录', subLabel: '点击记录姨妈', slogan: '好好爱自己，比什么都重要', phase: {key: 'menstruate'}}
+            try {
+              prediction = periodUtil.predictNext(entries, settings)
+              statusInfo = periodUtil.getStatusCardInfo(entries, prediction) || statusInfo
+            } catch(e) {}
+            const cat = categories.getCategoryById('period')
+            let periodDay = null
+            let nextDate = null
+            const searchStr = (statusInfo.mainLabel || '') + ' ' + (statusInfo.daysInfo || '') + ' ' + (statusInfo.subLabel || '')
+            const match = searchStr.match(/第\s*(\d+)\s*天/)
+            if (match) periodDay = parseInt(match[1])
+            if (prediction && prediction.predictedDate) {
+              const d = new Date(prediction.predictedDate)
+              nextDate = `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`
+            }
+            const phaseConfigs = {
+              menstruate: {name: '姨妈日', icon: '🌸', slogan: '热敷小腹，给自己一个温暖的拥抱 🤗'},
+              follicular: {name: '回升期', icon: '🍃', slogan: '身体正在慢慢恢复，状态越来越好啦 ✨'},
+              fertile: {name: '重点阶段', icon: '⚠️', slogan: '这几天更适合放慢一点，留意身体节奏 ☁️'},
+              ovulation: {name: '状态高点', icon: '✨', slogan: '今天状态在线，记得把节奏留给自己 🔋'},
+              luteal: {name: '暴躁期', icon: '🌧️', slogan: '激素波动可能影响情绪，对自己温柔点 🤍'},
+              premenstrual: {name: '下次预警', icon: '⏳', slogan: '姨妈即将来访，记得提前备好小翅膀 🕊️'}
+            }
+            const phaseKey = (statusInfo.phase && statusInfo.phase.key) || 'menstruate'
+            const config = phaseConfigs[phaseKey] || phaseConfigs.menstruate
+            processedItems.push({
+              id: item.id,
+              title: item.title || '姨妈追踪',
+              category: 'period',
+              isPeriod: true,
+              icon: cat.icon || '🌸',
+              periodDay,
+              statusMain: statusInfo.mainLabel,
+              statusSub: statusInfo.daysInfo || statusInfo.subLabel,
+              cardSubtitle: statusInfo.slogan || config.slogan,
+              nextDate,
+              currentPhaseIcon: config.icon,
+              currentPhaseName: config.name,
+              currentPhaseSlogan: config.slogan,
+              isPast: false,
+              countdownPreciseDays: 0,
+              iconLoadError: false,
+              hasPeriodData: !!statusInfo.hasData
+            })
+            continue
+          }
 
-        // ★ 主倒计时（用于大字）
-        countdownPreciseDays: main.days,
-        countdownPrecise: main.totalFormatted,
-        countdownHms: (main.totalFormatted.split(' ')[1] || ''),
-        preciseIsPast: main.isPast,
-
-        // ★ 小字：已过去/已过/还有
-        countdownSentence: elapsed.text,
-
-        // ★ isRecurring 透传
-        isRecurring: itemData.isRecurring,
-
-        // 保留旧字段（兼容）
-        detail: elapsed.text,
-        days: main.days,
-        icon: cat.icon,
-        iconPath: getIconPath(this.data.currentTheme, item.categoryId),
-        category: item.categoryId,
-        categoryName: cat.name,
-        coverImg: item.coverImage || ''
+          const cat = categories.getCategoryById(item.categoryId || 'default') || {icon: '✨', name: '默认', isRecurring: false, direction: 'up'}
+          const itemData = {
+            targetDate: item.targetDate,
+            isRecurring: item.isRecurring !== undefined ? item.isRecurring : !!cat.isRecurring,
+            startDate: item.startDate || item.targetDate,
+            direction: item.direction || cat.direction || 'up'
+          }
+          const main = countdown.getMainCountdown(itemData, now) || {isPast: false, days: 0, totalFormatted: ''}
+          const elapsed = countdown.getElapsedText(itemData, now) || {text: ''}
+          const safeDateStr = (item.targetDate || '').replace(/-/g, '/')
+          const d = safeDateStr ? new Date(safeDateStr) : new Date()
+          processedItems.push({
+            id: item.id || Date.now().toString(),
+            title: item.title || '未命名',
+            dateStr: !isNaN(d.getTime()) ? `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}` : '未知日期',
+            targetDate: item.targetDate,
+            startDate: itemData.startDate,
+            direction: itemData.direction,
+            isPast: !!main.isPast,
+            countdownPreciseDays: main.days || 0,
+            isHugeNumLong: (main.days || 0) >= 10000,
+            countdownPrecise: main.totalFormatted || '',
+            countdownHms: (main.totalFormatted && main.totalFormatted.split(' ')[1]) || '',
+            preciseIsPast: !!main.isPast,
+            countdownSentence: elapsed.text || '',
+            cardSubtitle: item.cardSubtitle || '满怀期待',
+            isRecurring: !!itemData.isRecurring,
+            icon: cat.icon || '✨',
+            iconPath: getIconPath(this.data.currentTheme, item.categoryId || 'default'),
+            iconEmoji: (cat.icon || '✨') + ' ',
+            category: item.categoryId || 'default',
+            categoryName: cat.name || '默认',
+            coverImg: item.coverImage || '',
+            iconLoadError: false
+          })
+        } catch (itemError) {
+          console.error('[index] loadItems 单条渲染失败:', item.id, itemError)
+        }
       }
-    })
 
-    // ★ 排序：未过的按主倒计时升序，已过的按主倒计时降序
-    processedItems.sort((a, b) => {
-      if (a.isPast !== b.isPast) return a.isPast ? 1 : -1
-      if (!a.isPast) return a.countdownPreciseDays - b.countdownPreciseDays
-      return b.countdownPreciseDays - a.countdownPreciseDays
-    })
+      processedItems.sort((a, b) => {
+        if (a.isPast !== b.isPast) return a.isPast ? 1 : -1
+        if (!a.isPast) return a.countdownPreciseDays - b.countdownPreciseDays
+        return b.countdownPreciseDays - a.countdownPreciseDays
+      })
 
-    this.setData({ listData: processedItems, hasMore: processedItems.length >= this.data.pageSize })
+      this._allProcessedItems = processedItems
+      const visibleCount = this.data.page * this.data.pageSize
+      const visibleItems = processedItems.slice(0, visibleCount)
 
-    // ★ 保存原始条目（带完整字段），供每秒刷新用
-    this._rawItems = localData.map(item => ({
-      id: item.id,
-      targetDate: item.targetDate,
-      isRecurring: item.isRecurring ?? categories.isRecurringCategory(item.categoryId),
-      startDate: item.startDate || item.targetDate,
-      direction: item.direction,
-      categoryId: item.categoryId
-    }))
+      this.setData({
+        listData: visibleItems,
+        hasMore: visibleItems.length < processedItems.length
+      })
+
+      this._rawItems = processedItems.map(p => ({
+        id: p.id,
+        targetDate: p.targetDate,
+        isRecurring: p.isRecurring,
+        startDate: p.startDate,
+        direction: p.direction,
+        categoryId: p.category
+      }))
+
+    } catch (fatalError) {
+      console.error('[index] loadItems 加载失败:', fatalError)
+    }
   },
 
   loadMore() {
     if (!this.data.hasMore || this.data.loadingMore) return
-    this.setData({ loadingMore: true })
+    this.setData({loadingMore: true})
     setTimeout(() => {
-      this.setData({ page: this.data.page + 1, loadingMore: false })
-      this.loadItems()
+      const nextPage = this.data.page + 1
+      const visibleCount = nextPage * this.data.pageSize
+      // ★ 修复：直接切片 _allProcessedItems，避免重新读取存储导致数据不一致
+      const allItems = this._allProcessedItems || []
+      const visibleItems = allItems.slice(0, visibleCount)
+      this.setData({
+        page: nextPage,
+        loadingMore: false,
+        listData: visibleItems,
+        hasMore: visibleItems.length < allItems.length
+      })
     }, 300)
   },
 
-  onPullDownRefresh() {
-    this.loadItems()
-    wx.stopPullDownRefresh()
-  },
+  goToAdd() { wx.navigateTo({url: '/pages/add/add'}) },
 
-  toggleThemePicker() {
-    this.setData({ showThemePicker: !this.data.showThemePicker })
-  },
-
-  switchTheme(e) {
-    const themeId = e.currentTarget.dataset.theme
-    app.setTheme(themeId)
-    const theme = themeModule.getTheme(themeId)
-    const updatedList = this.data.listData.map(item => ({
-      ...item,
-      iconPath: getIconPath(themeId, item.category)
-    }))
-    this.setData({
-      currentTheme: themeId, theme,
-      listData: updatedList,
-      accentColor: theme.textAccent,
-      themeStyle: buildThemeStyle(theme),
-      cardBg: theme.cardBg || theme.background || '#ffffff',
-      showThemePicker: false
-    })
-  },
-
-  goToAdd() { wx.navigateTo({ url: '/pages/add/add' }) },
-  goToDetail(e) { wx.navigateTo({ url: `/pages/detail/detail?id=${e.currentTarget.dataset.id}` }) },
-  goToMine() { wx.navigateTo({ url: '/pages/mine/mine' }) },
-
-  shareCard(e) {
+  goToDetail(e) {
     const id = e.currentTarget.dataset.id
     const item = this.data.listData.find(i => i.id === id)
-    if (!item) return
-
-    wx.showLoading({ title: '生成中...' })
-    const ctx = wx.createCanvasContext('shareCanvas')
-    const st = getShareTheme(item.category)
-    const hasCover = !!(item.coverImg)
-
-    if (hasCover) {
-      // ── 有封面图 ──
-      ctx.drawImage(item.coverImg, 0, 0, 300, 420)
-      ctx.setFillStyle('rgba(0,0,0,0.52)')
-      ctx.fillRect(0, 170, 300, 250)
-      ctx.setFillStyle('rgba(0,0,0,0.2)')
-      ctx.fillRect(0, 0, 300, 65)
-    } else {
-      // ── 无封面：主题色背景 ──
-      ctx.setFillStyle(st.bg)
-      ctx.fillRect(0, 0, 300, 420)
+    if (item && item.category === 'period') {
+      wx.navigateTo({url: `/pages/period/period?id=${id}`})
+      return
     }
+    wx.navigateTo({url: `/pages/detail/detail?id=${id}`})
+  },
 
-    ctx.setTextAlign('center')
+  goToMine() { wx.switchTab({url: '/pages/mine/mine'}) },
 
-    // 顶部标签
-    ctx.setFontSize(13)
-    ctx.setFillStyle(hasCover ? 'rgba(255,255,255,0.9)' : st.accent)
-    ctx.fillText(`${st.emoji}  ${item.categoryName || ''}`, 150, 36)
-
-    // 分隔线
-    ctx.setStrokeStyle(hasCover ? 'rgba(255,255,255,0.25)' : st.accent)
-    ctx.setLineWidth(0.5)
-    ctx.setGlobalAlpha(0.3)
-    ctx.beginPath()
-    ctx.moveTo(80, 52)
-    ctx.lineTo(220, 52)
-    ctx.stroke()
-    ctx.setGlobalAlpha(1)
-
-    // 主数字（衬线字体 Georgia）
-    ctx.setFillStyle(hasCover ? '#FFFFFF' : st.num)
-    ctx.font = '200 88px Georgia, serif'
-    ctx.fillText(item.countdownPreciseDays.toString(), 150, 148)
-
-    // 天标签
-    ctx.setFontSize(18)
-    ctx.setFillStyle(hasCover ? 'rgba(255,255,255,0.75)' : st.sub)
-    ctx.font = '300 18px sans-serif'
-    ctx.fillText(item.preciseIsPast ? '天已过' : '天', 150, 172)
-
-    // 时分秒
-    ctx.setFontSize(18)
-    ctx.setGlobalAlpha(0.5)
-    const hms = (item.countdownPrecise.split(' ')[1] || '')
-    ctx.fillText(hms, 150, 200)
-    ctx.setGlobalAlpha(1)
-
-    // 标题
-    ctx.setFontSize(22)
-    if (hasCover) {
-      ctx.setFillStyle('#FFFFFF')
-    } else if (item.category === 'death') {
-      ctx.setFillStyle('#E0E0EC')
-    } else {
-      ctx.setFillStyle(st.titleColor || '#FFECD2')
-    }
-    ctx.font = 'bold 22px sans-serif'
-    ctx.fillText(item.title, 150, 248)
-
-    // 日期
-    ctx.setFontSize(14)
-    ctx.setFillStyle(hasCover ? 'rgba(255,255,255,0.7)' : st.sub)
-    ctx.font = '14px sans-serif'
-    ctx.fillText(item.dateStr, 150, 276)
-
-    // 温馨话
-    ctx.setFontSize(13)
-    ctx.setFillStyle(hasCover ? 'rgba(255,228,181,0.92)' : st.accent)
-    ctx.setGlobalAlpha(0.88)
-    ctx.fillText(item.countdownSentence, 150, 328)
-    ctx.setGlobalAlpha(1)
-
-    // 底部水印
-    ctx.setFontSize(11)
-    ctx.setFillStyle(hasCover ? 'rgba(255,255,255,0.4)' : st.sub)
-    ctx.setGlobalAlpha(0.4)
-    ctx.fillText('No Forget · 值得记住的日子', 150, 408)
-    ctx.setGlobalAlpha(1)
-
-    ctx.draw(false, () => {
-      wx.canvasToTempFilePath({
-        canvasId: 'shareCanvas',
-        success: (res) => {
-          wx.hideLoading()
-          wx.showShareImageMenu({ itemList: ['分享给朋友', '分享到朋友圈'], imageUrl: res.tempFilePath })
-        },
-        fail: () => {
-          wx.hideLoading()
-          wx.showToast({ title: '生成失败', icon: 'none' })
-        }
-      })
+  toggleThemePicker() {
+    wx.showModal({
+      title: '主题',
+      content: '当前风格：晨雾莫兰迪',
+      showCancel: false,
+      confirmText: '知道了'
     })
   }
 })

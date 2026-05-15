@@ -1,155 +1,123 @@
-<!-- pages/index/index.wxml - 首页 -->
-<import src="../../utils/theme.wxml"/>
+<!-- pages/index/index.wxml - 首页 v17 -->
+<view class="page-container">
 
-<view class="container" style="{{themeStyle}}">
-  <!-- 导航栏 -->
-  <view class="nav-bar">
-    <!-- 左/右功能键 -->
-    <view class="nav-content">
-      <view class="nav-icon-btn" bindtap="toggleThemePicker">
-        <view class="nav-icon-theme"></view>
-      </view>
-      <view class="nav-icon-btn" bindtap="goToMine">
-        <view class="nav-icon-mine"></view>
-      </view>
-    </view>
-    <!-- 标题 -->
-    <view class="nav-title-area">
-      <text class="nav-title">倒数日</text>
-    </view>
-    <!-- 灵动岛下方居中 Logo -->
-    <view class="nav-logo-area">
-      <image class="nav-logo-img" src="/images/logo.png" mode="aspectFit"></image>
+  <view class="page-fixed-bg"></view>
+
+  <!-- 自定义导航栏 -->
+  <view class="custom-header" style="height: {{totalTopHeight}}px; padding-top: {{statusBarHeight}}px; box-sizing: border-box;">
+    <view class="nav-content" style="height: {{navHeight}}px;">
+      <view class="nav-left"></view>
+      <view class="nav-title">NO FORGET</view>
     </view>
   </view>
 
-  <!-- 空状态 -->
-  <block wx:if="{{listData.length === 0}}">
-    <view class="empty-state">
-      <text class="empty-icon">📅</text>
-      <text class="empty-title">还没有倒数日</text>
-      <text class="empty-desc">创建第一个倒数日，记录每一个重要的日子</text>
-      <view class="empty-add-btn" bindtap="goToAdd">
-        <text>+</text>
+  <!-- 内容区 -->
+  <scroll-view class="scroll-area {{listData.length === 0 ? 'is-empty' : ''}}" scroll-y="{{listData.length > 0}}" scroll-with-animation scroll-into-view="{{scrollIntoView}}" lower-threshold="200" bindscrolltolower="loadMore">
+    <view id="top-anchor" style="height: 1rpx; width: 1rpx;"></view>
+    <view style="height: {{totalTopHeight}}px; width: 100%; flex-shrink: 0;"></view>
+
+    <!-- 每日黄历入口 -->
+    <view class="huangli-strip" wx:if="{{dailyHuangli}}" bindtap="goToAlmanac">
+      <view class="strip-date">
+        <text class="strip-kicker">今日黄历</text>
+        <text class="strip-day">{{dailyHuangli.solarDate}}</text>
+        <text class="strip-lunar">{{dailyHuangli.week}} · {{dailyHuangli.lunarFull}}</text>
       </view>
+      <view class="strip-actions">
+        <view class="strip-pill good"><text class="strip-pill-label good">宜</text><text class="strip-pill-value">{{dailyHuangli.yi}}</text></view>
+        <view class="strip-pill avoid"><text class="strip-pill-label avoid">忌</text><text class="strip-pill-value">{{dailyHuangli.ji}}</text></view>
+      </view>
+      <text class="strip-arrow">›</text>
     </view>
-  </block>
 
-  <!-- 列表 -->
-  <block wx:else>
-    <scroll-view class="list-scroll" scroll-y lower-threshold="200" bindscrolltolower="loadMore">
-
-      <!-- ★ 每日首次温馨话Banner -->
-      <view class="daily-banner cat-{{dailyBanner ? dailyBanner.catId : 'default'}} {{showDailyBanner ? 'banner-show' : 'banner-hide'}}" wx:if="{{dailyBanner}}" bindtap="dismissBanner">
-        <view class="banner-emoji">{{dailyBanner.emoji}}</view>
-        <text class="banner-text">{{dailyBanner.text}}</text>
-        <view class="banner-close">✕</view>
-        <view class="banner-label">每日一言</view>
+    <!-- 🌟 极简高级版空状态 -->
+    <block wx:if="{{listData.length === 0}}">
+      <view class="empty-state">
+        <view class="empty-text-group">
+          <text class="empty-title">让重要日期，有迹可循</text>
+          <text class="empty-subtitle">Keep every meaningful day in view.</text>
+          <view class="empty-divider"></view>
+          <text class="empty-desc">把纪念日、生日和值得留下的瞬间\n整理成一份轻盈的时间档案</text>
+        </view>
       </view>
+    </block>
 
+    <!-- 每日一言Banner -->
+    <view class="daily-banner cat-{{dailyBanner ? dailyBanner.catId : 'default'}} {{showDailyBanner ? 'banner-show' : 'banner-hide'}}" wx:if="{{dailyBanner}}" bindtap="dismissBanner">
+      <view class="banner-emoji">{{dailyBanner.emoji}}</view>
+      <text class="banner-text">{{dailyBanner.text}}</text>
+      <view class="banner-close">✕</view>
+      <view class="banner-label">每日一言</view>
+    </view>
+
+    <!-- 卡片列表 -->
+    <block wx:if="{{listData.length > 0}}">
       <view class="card-list">
         <block wx:for="{{listData}}" wx:key="id">
-          <view
-            class="countdown-card cat-{{item.category}} {{item.coverImg ? 'has-cover' : 'no-cover'}}"
-            style="{{item.coverImg ? '' : 'background:' + cardBg + ';' + 'box-shadow:' + shadowCard}}"
-            bindtap="goToDetail"
-            data-id="{{item.id}}"
-          >
-            <!-- 有封面 -->
-            <block wx:if="{{item.coverImg}}">
-              <view class="card-cover">
-                <image class="card-cover-img" src="{{item.coverImg}}" mode="aspectFill"/>
-                <view class="card-cover-overlay"></view>
-                <view class="card-cover-tag">
-                  <image src="{{item.iconPath}}" style="width:10px;height:10px;" mode="aspectFit"></image>
-                  <text class="card-cover-tag-name">{{item.categoryName}}</text>
-                </view>
-                <view class="card-share-btn" catchtap="shareCard" data-id="{{item.id}}">
-                  <text class="share-icon">↗</text>
-                </view>
-                <view class="card-cover-content">
-                  <view class="card-cover-days">
-                    <text class="cover-days-num">{{item.countdownPreciseDays}}</text>
-                    <text class="cover-days-label">{{item.preciseIsPast ? '天已过' : '天'}}</text>
-                  </view>
-                  <text class="card-cover-title">{{item.title}}</text>
-                  <text class="card-cover-date">{{item.dateStr}}</text>
-                </view>
-              </view>
-            </block>
 
-            <!-- 无封面：数字左 + 信息右 -->
-            <block wx:else>
-              <view class="card-no-cover">
-                <!-- 顶栏：分享按钮（右上） -->
-                <view class="no-cover-topbar">
-                  <view class="card-category-tag">
-                    <image class="card-category-icon" src="{{item.iconPath}}" mode="aspectFit" style="width:18px;height:18px;"></image>
-                    <text class="card-category-name">{{item.categoryName}}</text>
-                  </view>
-                  <view catchtap="shareCard" data-id="{{item.id}}">
-                    <text class="share-icon">↗</text>
+          <view wx:if="{{item.isPeriod && item.hasPeriodData}}" class="event-card theme-period card-shadow" bindtap="goToDetail" data-id="{{item.id}}">
+            <!-- 灵魂大数字水印 -->
+            <text class="huge-num">D{{item.periodDay || '1'}}</text>
+            <view class="card-content">
+
+              <view class="card-left">
+                <view class="card-header">
+                  <view class="title-wrap">
+                    <text class="icon">{{item.currentPhaseIcon || item.icon}}</text>
+                    <text class="title-txt">{{item.currentPhaseName || item.title}}</text>
                   </view>
                 </view>
-
-                <!-- 主体：左侧大数字 + 右侧标题 -->
-                <view class="no-cover-body">
-                  <!-- 左侧：DD天 HH:MM:SS -->
-                  <view class="no-cover-days">
-                    <view class="no-cover-days-row">
-                      <text class="no-cover-days-num">{{item.countdownPreciseDays}}</text>
-                      <text class="no-cover-days-label">天</text>
-                    </view>
-                    <text class="no-cover-hms">{{item.countdownHms}}</text>
+                <view class="card-subtitle">{{item.currentPhaseSlogan || item.cardSubtitle}}</view>
+                <view class="card-footer">
+                  <view class="footer-info-item">
+                    <text class="info-label">当前阶段</text>
+                    <text class="info-value">{{item.statusMain}}</text>
                   </view>
-
-                  <!-- 右侧：标题 + 日期 + 小字（已过去X年X月） -->
-                  <view class="no-cover-info">
-                    <text class="no-cover-title">{{item.title}}</text>
-                    <text class="no-cover-date">距 {{item.dateStr}}</text>
-                    <text class="no-cover-elapsed">{{item.countdownSentence}}</text>
+                  <view class="footer-info-item">
+                    <text class="info-label">下次预计</text>
+                    <text class="info-value">{{item.nextDate || '—'}}</text>
                   </view>
                 </view>
               </view>
-            </block>
+
+            </view>
           </view>
+
+          <view wx:else class="event-card theme-{{item.category}} card-shadow" bindtap="goToDetail" data-id="{{item.id}}">
+            <view class="card-content">
+              <view class="card-left">
+                <view class="card-title">
+                  <text class="icon">{{item.icon}}</text>
+                  <text class="title-txt">{{item.title}}</text>
+                </view>
+                <view class="card-subtitle">{{item.cardSubtitle}}</view>
+                <view class="card-grid">
+                  <view class="grid-item">
+                    <text class="grid-label">起始</text>
+                    <text class="grid-value">{{item.dateStr}}</text>
+                  </view>
+                  <view class="grid-divider"></view>
+                  <view class="grid-item">
+                    <text class="grid-label">状态</text>
+                    <text class="grid-value">{{item.preciseIsPast ? '已成往事' : '满怀期待'}}</text>
+                  </view>
+                </view>
+              </view>
+              <text class="huge-num {{item.isHugeNumLong ? 'huge-num-long' : ''}}">{{item.countdownPreciseDays}}</text>
+            </view>
+          </view>
+
         </block>
       </view>
-
-      <!-- 加载更多 -->
-      <block wx:if="{{hasMore && listData.length > 0}}">
-        <view class="load-more" style="color:{{theme.textSecondary}}">
-          {{loadingMore ? '加载中...' : '上滑加载更多'}}
-        </view>
+      <block wx:if="{{hasMore}}">
+        <view class="load-more">{{loadingMore ? '加载中...' : '上滑加载更多'}}</view>
       </block>
-    </scroll-view>
-  </block>
+    </block>
 
-  <!-- 隐藏的分享 Canvas -->
-  <canvas canvas-id="shareCanvas" style="width:300px;height:420px;position:absolute;left:-9999px;top:-9999px;"></canvas>
+    <view style="height: 160rpx; flex-shrink: 0;"></view>
+  </scroll-view>
 
-  <!-- 底部添加按钮 -->
-  <view class="bottom-add-btn" bindtap="goToAdd">
-    <view class="bottom-add-circle" style="background:{{theme.textAccent}};box-shadow:0 4px 16px {{theme.textAccent}}40;">
-      <text>+</text>
-    </view>
-  </view>
+  <!-- 底部导航 -->
+  <tab-bar active="index"></tab-bar>
 
-  <!-- 主题选择器 -->
-  <block wx:if="{{showThemePicker}}">
-    <view class="theme-picker-mask" bindtap="toggleThemePicker">
-      <view class="theme-picker-sheet" style="background:{{cardBg}}" catchtap="">
-        <text class="theme-picker-title">选择主题</text>
-        <view class="theme-options">
-          <block wx:for="{{themes}}" wx:key="id">
-            <view class="theme-option {{currentTheme === item.id ? 'active' : ''}}" bindtap="switchTheme" data-theme="{{item.id}}">
-              <view class="theme-preview {{item.id}}-preview"></view>
-              <text class="theme-name">{{item.name}}</text>
-            </view>
-          </block>
-        </view>
-        <view class="theme-picker-cancel" bindtap="toggleThemePicker">取消</view>
-      </view>
-    </view>
-  </block>
 </view>

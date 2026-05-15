@@ -1,91 +1,93 @@
-<!-- pages/mine/mine.wxml - 我的页面 -->
-<view class="container" style="background: {{theme.background}};">
-  <!-- 顶部导航 -->
+<!-- pages/mine/mine.wxml - 极简高级版个人中心 v19 -->
+
+<view class="container theme-{{currentTheme}}" style="font-family: {{theme.fontFamily}};">
+
+  <!-- 1. 顶部导航 -->
   <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
     <view class="nav-content">
-      <text class="nav-title" style="color: {{theme.textPrimary}};">我的</text>
-    </view>
-  </view>
-
-  <!-- 用户信息 -->
-  <view class="user-section">
-    <view class="user-card" style="background: {{theme.cardBg}}; box-shadow: {{theme.shadow}};">
-      <view class="user-info" wx:if="{{hasLogin}}">
-        <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
-        <view class="user-detail">
-          <text class="nickname" style="color: {{theme.textPrimary}};">{{userInfo.nickName}}</text>
-          <text class="user-desc" style="color: {{theme.textSecondary}};">记录每一个重要时刻</text>
-        </view>
-      </view>
-      <view class="user-info not-login" wx:else bindtap="doLogin">
-        <view class="avatar-placeholder">
-          <text>👤</text>
-        </view>
-        <view class="user-detail">
-          <text class="nickname" style="color: {{theme.textPrimary}};">点击登录</text>
-          <text class="user-desc" style="color: {{theme.textSecondary}};">登录后同步你的数据</text>
-        </view>
+      <view class="back-btn" bindtap="goBack">
+        <image class="back-arrow-icon" src="/static/icons/system/back.svg" mode="aspectFit"></image>
       </view>
     </view>
   </view>
 
-  <!-- 统计数据 -->
-  <view class="stats-section">
-    <view class="stats-card" style="background: {{theme.cardBg}}; box-shadow: {{theme.shadow}};">
-      <view class="stat-item">
-        <text class="stat-number" style="color: {{theme.textPrimary}};">{{stats.total}}</text>
-        <text class="stat-label" style="color: {{theme.textSecondary}};">总记录</text>
+  <!-- 2. 用户头部信息区（居中大头像设计，彻底修复椭圆） -->
+  <view class="user-header">
+    <button class="avatar-wrapper card-shadow" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <image class="avatar-real" src="{{userAvatar}}" mode="aspectFill" wx:if="{{userAvatar}}"></image>
+      <view class="avatar-placeholder" wx:else><view class="avatar-line-icon"></view></view>
+    </button>
+    <view class="user-text-area">
+      <text class="nickname">{{userAvatar ? (nickName || '我') : '点击设置头像'}}</text>
+      <text class="user-desc">记录每一个重要时刻</text>
+    </view>
+  </view>
+
+  <!-- 3. 数据仪表盘 -->
+  <view class="dashboard-section">
+    <view class="dashboard-card card-shadow">
+      <view class="dash-item" bindtap="showStatInfo" data-stat="total">
+        <text class="dash-num" style="color: {{theme.textPrimary}};">{{formattedStats.total}}</text>
+        <text class="dash-label">总记录</text>
       </view>
-      <view class="stat-divider" style="background: {{theme.border}};"></view>
-      <view class="stat-item">
-        <text class="stat-number" style="color: {{theme.textPrimary}};">{{stats.upcoming}}</text>
-        <text class="stat-label" style="color: {{theme.textSecondary}};">即将到来</text>
+      <view class="dash-divider"></view>
+      <view class="dash-item" bindtap="showStatInfo" data-stat="upcoming">
+        <text class="dash-num" style="color: {{theme.textPrimary}};">{{formattedStats.upcoming}}</text>
+        <text class="dash-label">即将到来</text>
       </view>
-      <view class="stat-divider" style="background: {{theme.border}};"></view>
-      <view class="stat-item">
-        <text class="stat-number" style="color: {{theme.textPrimary}};">{{stats.past}}</text>
-        <text class="stat-label" style="color: {{theme.textSecondary}};">已过纪念</text>
+      <view class="dash-divider"></view>
+      <view class="dash-item" bindtap="showStatInfo" data-stat="past">
+        <text class="dash-num" style="color: {{theme.textPrimary}};">{{formattedStats.past}}</text>
+        <text class="dash-label">已过纪念</text>
       </view>
     </view>
   </view>
 
-  <!-- 功能列表 -->
+  <!-- 4. 功能面板 -->
   <view class="menu-section">
-    <view class="menu-group">
+    <view class="menu-group card-shadow">
       <view class="menu-item" bindtap="switchTheme">
-        <text class="menu-icon">🎨</text>
+        <image class="icon-wrap" src="/static/icons/system/theme.svg" mode="aspectFit"></image>
         <text class="menu-text">主题设置</text>
         <text class="menu-arrow">›</text>
       </view>
-      <view class="menu-item" style="border-bottom: 1px solid {{theme.border}};">
-        <text class="menu-icon">🔔</text>
+      <view class="menu-item" bindtap="goReminderSettings">
+        <image class="icon-wrap" src="/static/icons/system/bell.svg" mode="aspectFit"></image>
         <text class="menu-text">提醒设置</text>
         <text class="menu-arrow">›</text>
       </view>
-      <view class="menu-item" bindtap="exportData">
-        <text class="menu-icon">📤</text>
+      <view class="menu-item no-border" bindtap="exportData">
+        <image class="icon-wrap" src="/static/icons/system/export.svg" mode="aspectFit"></image>
         <text class="menu-text">导出数据</text>
         <text class="menu-arrow">›</text>
       </view>
     </view>
 
-    <view class="menu-group">
-      <view class="menu-item" style="border-bottom: 1px solid {{theme.border}};">
-        <text class="menu-icon">ℹ️</text>
+    <view class="menu-group card-shadow">
+      <view class="menu-item" bindtap="goAbout">
+        <image class="icon-wrap" src="/static/icons/system/info.svg" mode="aspectFit"></image>
         <text class="menu-text">关于 No Forget</text>
         <text class="menu-arrow">›</text>
       </view>
-      <view class="menu-item" bindtap="contactUs">
-        <text class="menu-icon">💬</text>
+      <view class="menu-item no-border" bindtap="contactUs">
+        <image class="icon-wrap" src="/static/icons/system/chat.svg" mode="aspectFit"></image>
         <text class="menu-text">意见反馈</text>
         <text class="menu-arrow">›</text>
       </view>
     </view>
+
+    <view class="menu-group card-shadow" wx:if="{{userAvatar}}">
+      <view class="menu-item no-border logout-item" bindtap="clearAvatar">
+        <image class="icon-wrap danger" src="/static/icons/system/trash.svg" mode="aspectFit"></image>
+        <text class="menu-text logout-text">清除头像</text>
+      </view>
+    </view>
   </view>
 
-  <!-- 底部版本 -->
+  <!-- 5. 底部品牌印记 -->
   <view class="footer">
-    <text style="color: {{theme.textSecondary}};">No Forget v1.0.0</text>
-    <text style="color: {{theme.textSecondary}};">记住每一个重要时刻 ❤️</text>
+    <text class="footer-version">No Forget v1.0.0</text>
+    <text class="footer-slogan">NO FORGET · 重要时刻档案</text>
   </view>
+  <tab-bar active="mine"></tab-bar>
 </view>
