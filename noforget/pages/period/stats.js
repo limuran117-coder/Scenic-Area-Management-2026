@@ -257,9 +257,7 @@ Page({
       return `你的平均间隔约 ${stats.avgCycle} 天，整体会比常见节奏更长一点。现在更重要的是看它是否持续稳定，如果接下来几次仍然接近这个区间，这就是你的个人规律。`
     }
     return `从现在的数据看，你的节奏比较稳定，平均 ${stats.avgCycle} 天，${trendSummary ? trendSummary.driftLabel : '最近一次与平均值接近'}。继续保持记录，这页会越来越像一份真正属于你的身体时间档案。`
-  }
-})
-
+  },
 
   /**
    * 用户点击右上角分享
@@ -277,11 +275,9 @@ Page({
     }
   },
 
-
-
   onCopyUrl: function () {
     return {
       query: '',
     }
-  },
-
+  }
+})

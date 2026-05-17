@@ -846,9 +846,7 @@ Page({
       filePath: filePath,
       success: () => wx.showToast({title: '已保存', icon: 'success'})
     })
-  }
-})
-
+  },
 
   /**
    * 用户点击右上角分享
@@ -866,11 +864,9 @@ Page({
     }
   },
 
-
-
   onCopyUrl: function () {
     return {
       query: '',
     }
-  },
-
+  }
+})

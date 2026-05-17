@@ -493,13 +493,11 @@ Page({
       confirmColor: '#FF3B30',
       success: (res) => {
         if (res.confirm) this.setData({coverImage: ''})
-      }
+      },
     })
   },
 
   preventTouch(e) {}
-})
-
 
   /**
    * 用户点击右上角分享
@@ -517,11 +515,9 @@ Page({
     }
   },
 
-
-
   onCopyUrl: function () {
     return {
       query: '',
     }
-  },
-
+  }
+})

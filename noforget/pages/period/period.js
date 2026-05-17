@@ -593,9 +593,7 @@ Page({
   saveLog() {
     // 保留旧方法兼容性，内部委托给 closeSheet
     this.closeSheet()
-  }
-})
-
+  },
 
   /**
    * 用户点击右上角分享
@@ -613,11 +611,9 @@ Page({
     }
   },
 
-
-
   onCopyUrl: function () {
     return {
       query: '',
     }
-  },
-
+  }
+})

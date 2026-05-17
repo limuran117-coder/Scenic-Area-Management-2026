@@ -436,9 +436,7 @@ Page({
       showCancel: false,
       confirmText: '知道了'
     })
-  }
-})
-
+  },
 
   /**
    * 用户点击右上角分享
@@ -456,11 +454,9 @@ Page({
     }
   },
 
-
-
   onCopyUrl: function () {
     return {
       query: '',
     }
-  },
-
+  }
+})
